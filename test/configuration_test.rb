@@ -43,7 +43,7 @@ class ConfigurationTest < Minitest::Test
     configuration = RecordingStudio::YouTube::Configuration.new
 
     assert_equal "env-token", configuration.api_key
-    assert_equal 1, configuration.retries
+    assert_equal 0, configuration.retries
     assert_equal 5, configuration.timeout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
     refute_includes configuration.inspect, "env-token"

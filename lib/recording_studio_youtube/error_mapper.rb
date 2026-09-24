@@ -35,7 +35,7 @@ module RecordingStudio
         reason = reason_from(error)
         domain = domain_from(error)
         message = redact(message_from(error, body), secrets)
-        details = details_from(error)
+        details = details_from(error, secrets)
         klass = class_for(status, reason)
         raise klass.new(message, status: status, reason: reason, domain: domain, operation: operation, details: details)
       end
@@ -84,13 +84,17 @@ module RecordingStudio
         "YouTube request failed"
       end
 
-      def self.details_from(error)
+      def self.details_from(error, secrets)
         return nil unless error.is_a?(Hash)
 
         Array(error["errors"]).filter_map do |item|
           next unless item.is_a?(Hash)
 
-          { "reason" => item["reason"], "domain" => item["domain"], "message" => item["message"] }
+          {
+            "reason" => item["reason"],
+            "domain" => item["domain"],
+            "message" => redact(item["message"], secrets)
+          }
         end
       end
 

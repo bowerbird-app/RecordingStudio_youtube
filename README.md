@@ -12,14 +12,13 @@ Set the key in code, or let the gem read it from the environment. `youtube_api_k
 RecordingStudio::YouTube.configure do |config|
   config.api_key = ENV["youtube_api_key"]
   config.oauth_client_id = ENV["youtube_client_id"]
-  config.oauth_client_secret = ENV["youtube_client_secret"]
   config.timeout = 5
 end
 ```
 
-Calls to `ENV` live in `RecordingStudio::YouTube::Configuration`. Tests and hosts can assign `config.api_key` directly.
+Calls to `ENV` live in `RecordingStudio::YouTube::Configuration`. Tests and hosts can assign `config.api_key` directly. The gem builds an authorization URL and does not exchange tokens, so it does not store a client secret.
 
-`RecordingStudio::YouTube.diagnostics` reports whether a key and an OAuth client are configured. It does not print the values. Pass `probe: true` to read one known public video and report whether public API access is working.
+`RecordingStudio::YouTube.diagnostics` reports whether a key and an OAuth client ID are configured. It does not print the values. Pass `probe: true` to read one known public video and report whether public API access is working.
 
 ## Read public data with an API key
 
@@ -61,7 +60,7 @@ page.next_page_token
 page.more?
 ```
 
-`type` accepts `video`, `channel`, `playlist`, or a list of those. Useful filters are `channel_id`, `published_after`, `published_before`, `language`, `region`, `order`, `video_duration`, `event_type`, `embeddable`, `video_license`, and `safe_search`. Pass anything else YouTube still accepts in `provider_params`. That hash cannot set `key`, `access_token`, or `part`.
+`type` accepts `video`, `channel`, `playlist`, or a list of those. Useful filters are `channel_id`, `published_after`, `published_before`, `language`, `region`, `order`, `video_duration`, `event_type`, `embeddable`, `video_license`, and `safe_search`. Pass anything else YouTube still accepts in `provider_params`. That hash cannot set `key`, `access_token`, or a field the gem already validates, including `q`, `part`, `maxResults`, and `pageToken`.
 
 ## Read a video
 
@@ -90,12 +89,15 @@ channel.url
 
 ## Read a channel's videos
 
-`channel_videos` reads the channel's uploads playlist, then one page of playlist items. It does not run a search. Each page is one `channels.list` call plus one `playlistItems.list` call. Pass `page_token` from the previous page when you want the next page.
+`channel_videos` reads the channel's uploads playlist, then one page of playlist items. It does not run a search. The first call is one `channels.list` plus one `playlistItems.list`. Pass `uploads_playlist_id` from that page on the next call to skip the channel lookup.
 
 ```ruby
 page = RecordingStudio::YouTube.channel_videos(channel_id: channel.id, max_results: 5)
 page.items.first.video_id
-page.uploads_playlist_id
+page = RecordingStudio::YouTube.channel_videos(
+  uploads_playlist_id: page.uploads_playlist_id,
+  page_token: page.next_page_token
+)
 ```
 
 ## Read a playlist
@@ -158,7 +160,7 @@ If `RecordingStudioAI` is loaded, the engine registers these read-only tools.
 - `youtube_get_playlist_items`
 - `youtube_get_comments`
 
-Each tool sets `read_only` and a cost. Search is `high` because of the 100-call daily budget. The other tools are `low`. Tool results use `to_agent` and omit `raw`.
+Each tool sets `read_only` and a cost. Search is `high` and requires confirmation because of the 100-call daily budget. The other tools are `low` and do not require confirmation. Tool arguments accept string or symbol keys. Tool results use `to_agent` and omit `raw`.
 
 `RecordingStudio::YouTube.capabilities` lists reads and the writes that are described but not implemented. A write capability has `implemented` false. Calling a write method on the module fails because the method is not defined.
 

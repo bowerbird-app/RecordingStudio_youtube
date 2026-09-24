@@ -91,6 +91,44 @@ class YoutubeApiTest < Minitest::Test
     assert_equal "snippet", params["part"]
   end
 
+  def test_provider_params_cannot_replace_validated_search_fields
+    blocked = sequence(json(200, search_body))
+    with_transport(blocked) do
+      error = assert_raises(RecordingStudio::YouTube::InvalidRequestError) do
+        RecordingStudio::YouTube.search(query: "zoo", max_results: 2, provider_params: { maxResults: "50", q: "other" })
+      end
+      assert_includes error.message, "cannot set"
+    end
+    assert_empty blocked.calls
+
+    allowed = sequence(json(200, search_body))
+    with_transport(allowed) do
+      RecordingStudio::YouTube.search(query: "zoo", max_results: 2, provider_params: { videoDefinition: "high" })
+    end
+    params = query(allowed.calls.first[:uri])
+    assert_equal "zoo", params["q"]
+    assert_equal "2", params["maxResults"]
+    assert_equal "snippet", params["part"]
+    assert_equal "high", params["videoDefinition"]
+  end
+
+  def test_channel_videos_skip_the_channel_lookup_when_the_playlist_id_is_known
+    transport = sequence(json(200, playlist_items_body))
+    with_transport(transport) do
+      page = RecordingStudio::YouTube.channel_videos(
+        uploads_playlist_id: PLAYLIST_ID, page_token: "TOKEN", max_results: 1
+      )
+      assert_equal VIDEO_ID, page.items.first.video_id
+      assert_equal PLAYLIST_ID, page.uploads_playlist_id
+      assert_nil page.channel_id
+      assert_equal %w[playlistItems.list], page.quota.map(&:operation)
+      assert_equal 1, page.requests
+    end
+    assert_equal 1, transport.calls.length
+    assert_equal "/youtube/v3/playlistItems", transport.calls.first[:uri].path
+    assert_equal PLAYLIST_ID, query(transport.calls.first[:uri])["playlistId"]
+  end
+
   def test_search_enrichment_is_one_extra_videos_call
     transport = sequence(
       json(200, search_body),
@@ -207,7 +245,10 @@ class YoutubeApiTest < Minitest::Test
       end
       [quota, auth, comments, invalid].each do |error|
         refute_includes error.message, secret
+        refute_includes error.details.inspect, secret
       end
+      assert_equal "blocked [redacted]", quota.details.first["message"]
+      assert_equal "bad [redacted]", auth.details.first["message"]
       assert_equal "quotaExceeded", quota.reason
       assert_equal "commentsDisabled", comments.reason
       assert_equal "invalidSearchFilter", invalid.reason
@@ -275,7 +316,6 @@ class YoutubeApiTest < Minitest::Test
     configuration = RecordingStudio::YouTube::Configuration.new
     configuration.api_key = "test-key"
     configuration.oauth_client_id = "client-id"
-    configuration.oauth_client_secret = "client-secret"
     RecordingStudio::YouTube.instance_variable_set(:@configuration, configuration)
     url = RecordingStudio::YouTube::Oauth.authorization_url(
       redirect_uri: "https://app.example/callback",
@@ -288,7 +328,8 @@ class YoutubeApiTest < Minitest::Test
     assert_equal "https://www.googleapis.com/auth/youtube.readonly", params["scope"]
     assert_equal "state-token", params["state"]
     assert_equal "code", params["response_type"]
-    refute_includes url, "client-secret"
+    refute params.key?("client_secret")
+    refute_includes url, "client_secret"
     assert_equal "https://oauth2.googleapis.com/token", RecordingStudio::YouTube::Oauth::TOKEN_ENDPOINT
     refute RecordingStudio::YouTube::Oauth.respond_to?(:exchange)
   end
@@ -330,12 +371,11 @@ class YoutubeApiTest < Minitest::Test
   def test_diagnostics_do_not_include_secret_values
     with_transport(sequence(json(200, video_body)), api_key: "test-key") do
       RecordingStudio::YouTube.configuration.oauth_client_id = nil
-      RecordingStudio::YouTube.configuration.oauth_client_secret = nil
       quiet = RecordingStudio::YouTube.diagnostics
       probed = RecordingStudio::YouTube.diagnostics(probe: true)
       assert_equal "configured", quiet["YouTube Data API key"]
       assert_equal "unavailable", quiet["Google OAuth client ID"]
-      assert_equal "unavailable", quiet["Google OAuth client secret"]
+      refute quiet.key?("Google OAuth client secret")
       assert_equal "not checked", quiet["Public API access"]
       assert_equal "working", probed["Public API access"]
       refute_includes quiet.inspect, "test-key"
@@ -349,18 +389,28 @@ class YoutubeApiTest < Minitest::Test
       youtube_search youtube_get_video youtube_get_channel youtube_get_channel_videos
       youtube_get_playlist youtube_get_playlist_items youtube_get_comments
     ], keys
+    search = RecordingStudio::YouTube::AiTools.definitions.first
     RecordingStudio::YouTube::AiTools.definitions.each do |definition|
       assert_equal true, definition[:read_only]
       assert_equal false, definition[:destructive]
       assert_includes %i[negligible low medium high], definition[:cost]
     end
-    assert_equal :high, RecordingStudio::YouTube::AiTools.definitions.first[:cost]
+    assert_equal :high, search[:cost]
+    assert_equal true, search[:requires_confirmation]
+    RecordingStudio::YouTube::AiTools.definitions.drop(1).each do |definition|
+      assert_equal false, definition[:requires_confirmation]
+    end
+    channel_videos = RecordingStudio::YouTube::AiTools.definitions.find { |item| item[:key] == :youtube_get_channel_videos }
+    parameter_names = channel_videos[:parameters].map { |parameter| parameter[:name] }
+    assert_includes parameter_names, :uploads_playlist_id
 
-    transport = sequence(json(200, search_body))
+    transport = sequence(json(200, search_body), json(200, search_body))
     with_transport(transport) do
-      executor = RecordingStudio::YouTube::AiTools.definitions.first[:executor]
+      executor = search[:executor]
       payload = executor.call({ "query" => "zoo", "type" => "video" }, nil)
+      symbol_payload = executor.call({ query: "zoo", type: :video }, nil)
       assert_equal VIDEO_ID, payload["items"].first["video_id"]
+      assert_equal payload["items"].first["video_id"], symbol_payload["items"].first["video_id"]
       assert_equal "NEXT", payload["next_page_token"]
       assert_equal true, payload["more"]
       assert_equal "search_queries", payload["quota"].first["bucket"]
@@ -398,7 +448,6 @@ class YoutubeApiTest < Minitest::Test
     configuration = RecordingStudio::YouTube::Configuration.new
     configuration.api_key = api_key
     configuration.oauth_client_id = nil
-    configuration.oauth_client_secret = nil
     configuration.transport = transport
     configuration.retries = retries
     configuration.retry_wait = 0

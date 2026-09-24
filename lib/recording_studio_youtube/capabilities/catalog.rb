@@ -19,7 +19,7 @@ module RecordingStudio
         get_channel_videos: read(
           :get_channel_videos, "playlistItems.list",
           "Resolves the channel uploads playlist, then reads playlist items. " \
-          "That is one channels.list call plus one playlistItems.list call per page."
+          "Pass uploads_playlist_id on a later page to skip the channels.list call."
         ),
         get_playlist: read(:get_playlist, "playlists.list"),
         get_playlist_items: read(:get_playlist_items, "playlistItems.list"),

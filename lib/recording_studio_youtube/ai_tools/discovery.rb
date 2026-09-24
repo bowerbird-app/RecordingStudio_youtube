@@ -29,6 +29,7 @@ module RecordingStudio
           ],
           returns: "A page of lightweight search items, page tokens, and quota metadata. Items are not full videos.",
           cost: :high,
+          requires_confirmation: true,
           executor_label: "RecordingStudio::YouTube.search"
         ),
         tool(
@@ -64,11 +65,14 @@ module RecordingStudio
           use_when: "You want videos that belong to a known channel.",
           do_not_use_when: "You are searching by keywords. This uses the uploads playlist, not search.",
           parameters: [
-            param(:channel_id, :string, true, "YouTube channel id."),
+            param(:channel_id, :string, false, "YouTube channel id. Required unless uploads_playlist_id is set."),
+            param(:uploads_playlist_id, :string, false,
+                  "Uploads playlist id from an earlier page. Skips the channel lookup."),
             param(:max_results, :integer, false, "Page size from 0 to 50. The default is 5."),
             param(:page_token, :string, false, "Token from a previous page.")
           ],
-          returns: "A page of uploaded videos plus the uploads playlist id. Each page costs two quota units.",
+          returns: "A page of uploaded videos plus the uploads playlist id. " \
+                   "The first page also calls channels.list. Later pages can pass uploads_playlist_id.",
           cost: :low,
           executor_label: "RecordingStudio::YouTube.channel_videos"
         )

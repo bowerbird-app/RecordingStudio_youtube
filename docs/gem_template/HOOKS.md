@@ -71,40 +71,9 @@ end
 
 ---
 
-## Extending Models
+## Models and controllers
 
-Add associations, validations, or methods to engine models:
-
-```ruby
-RecordingStudio::YouTube.configure do |config|
-  config.hooks.extend_model :Example do
-    include Auditable
-    
-    belongs_to :organization
-    validates :organization, presence: true
-    
-    def custom_method
-      # Your logic here
-    end
-  end
-end
-```
-
----
-
-## Extending Controllers
-
-Add before_actions, concerns, or methods to engine controllers:
-
-```ruby
-RecordingStudio::YouTube.configure do |config|
-  config.hooks.extend_controller :HomeController do
-    before_action :authenticate_user!
-    
-    include YourConcern
-  end
-end
-```
+This engine does not walk ActiveRecord models or ActionController descendants. `extend_model` and `extend_controller` blocks are not applied. Lifecycle hooks still run: `before_initialize`, `on_configuration`, and `after_initialize`.
 
 ---
 
@@ -262,8 +231,8 @@ end
 
 | Component | Extension Method |
 |-----------|------------------|
-| Models | `config.hooks.extend_model :ModelName` |
-| Controllers | `config.hooks.extend_controller :ControllerName` |
+| Models | Not scanned |
+| Controllers | Not scanned |
 | Services | `before_service`, `after_service`, `around_service` |
 | Views | `content_for` blocks, partial overrides |
 | Lifecycle | `before_initialize`, `after_initialize` |

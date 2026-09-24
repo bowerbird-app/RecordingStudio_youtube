@@ -7,9 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Google error details redact credential strings the same way the top-level message does.
+- `provider_params` cannot replace search fields the gem already validates.
+
+### Changed
+- `channel_videos` accepts `uploads_playlist_id`. A later page skips `channels.list`.
+- The `youtube_search` AI tool requires confirmation. The other read tools do not.
+- AI tool arguments accept string keys and symbol keys.
+- `retries` defaults to 0. A 500 or 503 does not spend another quota unit unless the host opts in.
+- The install generator writes concrete Tailwind `@source` paths for this engine's views and the installed FlatPack components.
+
 ### Removed
 - The example `gem_template_pages` migration. The migrations generator no longer copies a template table into a host app.
 - `enable_feature_x`. Configuration keeps YouTube settings only.
+- `oauth_client_secret`. The gem builds an authorization URL and does not exchange tokens.
+- `RecordingStudio::Capabilities::Example` and the engine scan of ActiveRecord models and controllers.
 
 ### Added
 - `RecordingStudio::YouTube` reads the YouTube Data API with one client. Public calls use an API key. User calls use a bearer token supplied by the host.

@@ -9,8 +9,7 @@ module RecordingStudio
         configuration = RecordingStudio::YouTube.configuration
         lines = {
           "YouTube Data API key" => state(configuration.api_key_configured?),
-          "Google OAuth client ID" => state(configuration.oauth_client_id_configured?),
-          "Google OAuth client secret" => state(configuration.oauth_client_secret_configured?)
+          "Google OAuth client ID" => state(configuration.oauth_client_id_configured?)
         }
         lines["Public API access"] = probe ? probe_access : "not checked"
         lines

@@ -74,15 +74,14 @@ class RecordingStudioYouTubeTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_youtube/services/example_service.rb", __dir__))
   end
 
-  def test_example_capability_wraps_include_for_and_is_not_enabled_globally
-    source = File.read(File.expand_path("../lib/recording_studio_youtube/capabilities/example.rb", __dir__))
+  def test_example_capability_is_not_shipped
+    refute File.exist?(File.expand_path("../lib/recording_studio_youtube/capabilities/example.rb", __dir__))
+    facade = File.read(File.expand_path("../lib/recording_studio_youtube.rb", __dir__))
+    workspace = File.read(File.expand_path("dummy/app/models/workspace.rb", __dir__))
 
-    assert_includes source, "def self.to(**)"
-    assert_includes source, "RecordingStudio::Capabilities.include_for(:example, **)"
-    refute_includes source, "enable_capability"
-    refute_includes source, "set_capability_options"
-    refute RecordingStudio.capability_enabled?(:example, for: "Folder")
-    refute RecordingStudio.capability_enabled?(:example, for: "Page")
+    refute_includes facade, "capabilities/example"
+    refute_includes workspace, "Capabilities::Example"
+    refute RecordingStudio.capability_enabled?(:example, for: "Workspace")
     assert_empty RecordingStudio.configuration.enabled_recordable_types_for(:example)
   end
 

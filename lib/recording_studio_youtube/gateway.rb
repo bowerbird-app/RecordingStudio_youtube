@@ -82,7 +82,6 @@ module RecordingStudio
       EVENT_TYPES = %w[completed live upcoming].freeze
       SAFE_SEARCH = %w[moderate none strict].freeze
       LICENSES = %w[any creativeCommon youtube].freeze
-      BLOCKED_PARAMS = %w[key access_token part].freeze
       FILTERS = [
         [:query, "q", :text],
         [:type, "type", :search_type],
@@ -98,6 +97,9 @@ module RecordingStudio
         [:safe_search, "safeSearch", :enum],
         [:page_token, "pageToken", :text]
       ].freeze
+      OWNED_PARAMS = (
+        %w[key access_token part maxResults videoEmbeddable] + FILTERS.map { |entry| entry[1] }
+      ).uniq.freeze
       ENUMS = {
         order: ["order", SEARCH_ORDERS],
         video_duration: ["video_duration", VIDEO_DURATIONS],
@@ -110,10 +112,10 @@ module RecordingStudio
 
       def search_params(options)
         require_search_target(options)
-        params = base_search_params(options)
+        params = extra_params(options[:provider_params])
+        params.merge!(base_search_params(options))
         FILTERS.each { |option, key, kind| copy_filter(params, key, kind, option, options[option]) }
         copy_embeddable(params, options[:embeddable])
-        extra_params(options[:provider_params]).each { |key, value| params[key] = value }
         params
       end
 
@@ -158,7 +160,7 @@ module RecordingStudio
 
         provider_params.each_with_object({}) do |(key, value), memo|
           name = key.to_s
-          raise InvalidRequestError, "provider_params cannot set #{name}" if BLOCKED_PARAMS.include?(name)
+          raise InvalidRequestError, "provider_params cannot set #{name}" if OWNED_PARAMS.include?(name)
 
           memo[name] = value.to_s
         end
@@ -212,17 +214,33 @@ module RecordingStudio
         ErrorMapper.raise_empty("channels.list", "channel")
       end
 
-      def channel_videos(channel_id:, page_token: nil, max_results: 5)
+      def channel_videos(channel_id: nil, uploads_playlist_id: nil, page_token: nil, max_results: 5)
+        return playlist_channel_videos(uploads_playlist_id, page_token, max_results) if present?(uploads_playlist_id)
+
+        videos_for_channel(channel_id, page_token, max_results)
+      end
+
+      private
+
+      def playlist_channel_videos(playlist_id, page_token, max_results)
+        id = require_id(playlist_id, "playlist id")
+        page = playlist_items(id, page_token: page_token, max_results: max_results)
+        ChannelVideos.from_playlist(page, id)
+      end
+
+      def videos_for_channel(channel_id, page_token, max_results)
+        raise InvalidRequestError, "channel_id or uploads_playlist_id is required" unless present?(channel_id)
+
         found = channel(require_id(channel_id, "channel id"))
-        if found.uploads_playlist_id.to_s.empty?
-          return ChannelVideos.empty(found, quota: [Quota.fetch("channels.list")])
-        end
+        return empty_channel_videos(found) if found.uploads_playlist_id.to_s.empty?
 
         page = playlist_items(found.uploads_playlist_id, page_token: page_token, max_results: max_results)
         ChannelVideos.wrap(page, found)
       end
 
-      private
+      def empty_channel_videos(found)
+        ChannelVideos.empty(found, quota: [Quota.fetch("channels.list")])
+      end
 
       def enriched(page, enrich)
         return page if enrich.nil?

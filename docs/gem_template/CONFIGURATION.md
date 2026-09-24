@@ -34,7 +34,7 @@ This will:
 |---------------------|---------|----------------------------------|---------------------------------------------|
 | `api_key`           | String  | `ENV["youtube_api_key"]`    | API key for external service integration.  |
 | `timeout`           | Integer | `5`                              | Timeout (seconds) for external calls.      |
-| `retries`           | Integer | `1`                              | Extra attempts for HTTP 500 and 503.       |
+| `retries`           | Integer | `0`                              | Extra attempts for HTTP 500 and 503. A retry spends another quota unit. |
 
 ### RecordingStudio Host-App Declarations
 
@@ -123,7 +123,7 @@ RecordingStudio::YouTube.configuration.timeout
 # => 5
 
 RecordingStudio::YouTube.configuration.to_h
-# => { timeout: 5, retries: 1, api_key_configured: true }
+# => { timeout: 5, retries: 0, api_key_configured: true }
 ```
 
 You can access these values from anywhere in your application or from within the engine's controllers, models, and jobs.

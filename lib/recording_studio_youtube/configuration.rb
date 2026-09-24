@@ -6,7 +6,7 @@ module RecordingStudio
       DEFAULT_TIMEOUT = 5
       DEFAULT_BASE_URL = "https://www.googleapis.com/youtube/v3"
 
-      attr_accessor :api_key, :oauth_client_id, :oauth_client_secret, :timeout,
+      attr_accessor :api_key, :oauth_client_id, :timeout,
                     :instrumentation_enabled, :retries, :retry_wait,
                     :transport, :base_url, :user_agent
       attr_writer :open_timeout, :read_timeout, :write_timeout
@@ -38,14 +38,6 @@ module RecordingStudio
         present?(@oauth_client_id)
       end
 
-      def oauth_client_secret_configured?
-        present?(@oauth_client_secret)
-      end
-
-      def oauth_client_configured?
-        oauth_client_id_configured? && oauth_client_secret_configured?
-      end
-
       def instrumentation_enabled?
         @instrumentation_enabled != false
       end
@@ -54,7 +46,6 @@ module RecordingStudio
         {
           api_key_configured: api_key_configured?,
           oauth_client_id_configured: oauth_client_id_configured?,
-          oauth_client_secret_configured: oauth_client_secret_configured?,
           timeout: timeout,
           open_timeout: open_timeout,
           read_timeout: read_timeout,
@@ -84,7 +75,6 @@ module RecordingStudio
       def assign_credentials
         @api_key = env_value("youtube_api_key") || env_value("youtube")
         @oauth_client_id = env_value("youtube_client_id")
-        @oauth_client_secret = env_value("youtube_client_secret")
       end
 
       def assign_timeouts
@@ -96,7 +86,7 @@ module RecordingStudio
 
       def assign_client_defaults
         @instrumentation_enabled = true
-        @retries = 1
+        @retries = 0
         @retry_wait = 0.2
         @transport = nil
         @base_url = DEFAULT_BASE_URL

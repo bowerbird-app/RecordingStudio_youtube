@@ -29,7 +29,7 @@ module RecordingStudio
       end
 
       def self.tool(key:, name:, description:, use_when:, do_not_use_when:, parameters:, returns:, cost:,
-                    executor_label:)
+                    executor_label:, requires_confirmation: false)
         {
           key: key,
           version: VERSION,
@@ -43,7 +43,7 @@ module RecordingStudio
           latency: :slow,
           read_only: true,
           destructive: false,
-          requires_confirmation: false,
+          requires_confirmation: requires_confirmation,
           idempotent: true,
           executor_label: executor_label,
           executor: ->(arguments, _context) { execute(key.to_s, arguments) }
@@ -85,7 +85,8 @@ module RecordingStudio
       end
 
       def self.channel_videos(arguments)
-        RecordingStudio::YouTube.channel_videos(**options(arguments, %w[channel_id max_results page_token]))
+        names = %w[channel_id uploads_playlist_id max_results page_token]
+        RecordingStudio::YouTube.channel_videos(**options(arguments, names))
       end
 
       def self.playlist_items(arguments)
@@ -101,12 +102,20 @@ module RecordingStudio
 
       def self.options(arguments, names)
         names.each_with_object({}) do |name, memo|
-          memo[name.to_sym] = arguments[name] if arguments.key?(name)
+          key = argument_key(arguments, name)
+          memo[name.to_sym] = arguments[key] unless key.nil?
         end
       end
 
+      def self.argument_key(arguments, name)
+        return name if arguments.key?(name)
+        return name.to_sym if arguments.key?(name.to_sym)
+
+        nil
+      end
+
       private_class_method :tool, :param, :video, :playlist, :search, :channel, :channel_videos,
-                           :playlist_items, :comments, :options
+                           :playlist_items, :comments, :options, :argument_key
     end
   end
 end

@@ -764,7 +764,20 @@ module RecordingStudio
       end
 
       def self.wrap(page, channel)
-        new(
+        build(page, channel.id, channel.uploads_playlist_id, combined_quota(page), page.requests + 1)
+      end
+
+      def self.from_playlist(page, playlist_id)
+        build(page, nil, playlist_id, page.quota, page.requests)
+      end
+
+      def self.build(page, channel_id, playlist_id, quota, requests)
+        fields = page_fields(page).merge(quota: quota, requests: requests)
+        new(**fields, channel_id: channel_id, uploads_playlist_id: playlist_id)
+      end
+
+      def self.page_fields(page)
+        {
           items: page.items,
           next_page_token: page.next_page_token,
           previous_page_token: page.previous_page_token,
@@ -772,13 +785,14 @@ module RecordingStudio
           results_per_page: page.results_per_page,
           etag: page.etag,
           region_code: page.region_code,
-          raw: page.raw,
-          quota: [Quota.fetch("channels.list"), *page.quota],
-          requests: page.requests + 1,
-          channel_id: channel.id,
-          uploads_playlist_id: channel.uploads_playlist_id
-        )
+          raw: page.raw
+        }
       end
+
+      def self.combined_quota(page)
+        [Quota.fetch("channels.list"), *page.quota]
+      end
+      private_class_method :build, :page_fields, :combined_quota
 
       def self.empty(channel, quota:)
         new(

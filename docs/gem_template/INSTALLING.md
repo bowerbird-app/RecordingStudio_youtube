@@ -83,14 +83,14 @@ See [CONFIGURATION.md](CONFIGURATION.md) for all options.
 
 ### Tailwind CSS
 
-If your app uses Tailwind, the generator adds `@source` directives to include engine views and FlatPack components:
+If your app uses Tailwind, the generator adds `@source` directives for this engine's `app/views` directory and the installed FlatPack `app/components` directory. Each path is the concrete relative path from `app/assets/tailwind/application.css` to that directory. The directive does not use `*` or `**`. Tailwind does not scan globs that leave the project.
 
 ```css
-@source "../../vendor/bundle/**/recording_studio_youtube/app/views/**/*.erb";
-@source "../../vendor/bundle/**/flatpack/app/components/**/*.{rb,erb}";
+@source "../../../../gems/recording_studio_youtube/app/views";
+@source "../../../../gems/flat_pack/app/components";
 ```
 
-This ensures Tailwind scans the engine's templates for class names during CSS compilation.
+The real paths depend on where the gems are installed. Rebuild CSS after the generator writes them.
 
 ---
 
@@ -122,12 +122,7 @@ end
 
 ### Configure Tailwind (If Using)
 
-Add to your `app/assets/tailwind/application.css`:
-
-```css
-@source "../../vendor/bundle/**/recording_studio_youtube/app/views/**/*.erb";
-@source "../../vendor/bundle/**/flatpack/app/components/**/*.{rb,erb}";
-```
+Add a concrete `@source` for this engine's `app/views` directory and for FlatPack's `app/components` directory. Use the relative path from `app/assets/tailwind/application.css`. Do not use a `vendor/bundle/**` glob. Tailwind does not scan globs that leave the project.
 
 Then rebuild:
 
