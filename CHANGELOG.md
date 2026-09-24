@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-09-24
+
+### Fixed
+- Google error details redact credential strings the same way the top-level message does.
+- `provider_params` cannot replace search fields the gem already validates.
+
+### Changed
+- `channel_videos` accepts `uploads_playlist_id`. A later page skips `channels.list`.
+- The `youtube_search` AI tool requires confirmation. The other read tools do not.
+- AI tool arguments accept string keys and symbol keys.
+- `retries` defaults to 0. A 500 or 503 does not spend another quota unit unless the host opts in.
+- The install generator writes concrete Tailwind `@source` paths for this engine's views and the installed FlatPack components.
+
+### Removed
+- The example `gem_template_pages` migration. The migrations generator no longer copies a template table into a host app.
+- `enable_feature_x`. Configuration keeps YouTube settings only.
+- `oauth_client_secret`. The gem builds an authorization URL and does not exchange tokens.
+- `RecordingStudio::Capabilities::Example` and the engine scan of ActiveRecord models and controllers.
+
+### Added
+- `RecordingStudio::YouTube` reads the YouTube Data API with one client. Public calls use an API key. User calls use a bearer token supplied by the host.
+- Search, video, channel, channel uploads, playlist, playlist item, and comment thread reads. Pages keep the caller's page token and do not walk further pages.
+- Capability and quota tables, read-only Recording Studio AI tools, and YouTube OAuth scope metadata. Writes are described and not implemented.
+- Caption track list and caption download for an authorized editor. There is no public transcript method.
+
 ## [0.2.2] - 2026-09-11
 
 ### Changed
@@ -18,7 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - After skills, the Cloud Agent fetch hook lists plugin `*.mdc` rules from `RecordingStudio_cursor_plugin` into `.cursor/rules/` (gitignored, not packaged). A missing rules directory warns and skips. Failures still exit 0.
-- Cloud Agent skill-fetch hook so copied addons load Recording Studio skills at Build time. `.cursor/environment.json` names the environment `recording-studio-gem-template`. `install` is `.cursor/install.sh`, which runs `.cursor/fetch-skills.sh` after provisioning. `snapshot` is omitted on purpose so Builds run install instead of reusing a laptop Personal snapshot. The script lists `recording-studio-*` skill ids from the public GitHub contents API and writes each `SKILL.md` into `.cursor/skills/` (gitignored, not packaged). Failures warn and still exit 0.
+- Cloud Agent skill-fetch hook so copied addons load Recording Studio skills at Build time. `.cursor/environment.json` names the environment `recording-studio-youtube`. `install` is `.cursor/install.sh`, which runs `.cursor/fetch-skills.sh` after provisioning. `snapshot` is omitted on purpose so Builds run install instead of reusing a laptop Personal snapshot. The script lists `recording-studio-*` skill ids from the public GitHub contents API and writes each `SKILL.md` into `.cursor/skills/` (gitignored, not packaged). Failures warn and still exit 0.
 - Dummy Accessible migration for `depends_on_recording_id` (Accessible 0.8+).
 
 ### Upgrade notes
@@ -46,7 +71,7 @@ New addons copied from this template are born on Recording Studio 4.x.
 ### Added
 - Gemspec dependency `recording_studio`, `~> 4.1`
 - Dummy host wiring for Accessible (`enable_capability(:accessible, on: Workspace)`) and an opt-in `RecordingStudio::Capabilities::Example.to` mixin. `.to` wraps core 4.2.0 `include_for` (not a fourth verb, and not a raw `enable_capability` / `set_capability_options` path). Installing the gem does not enable the mixin globally; only dummy Workspace opts in.
-- `bin/rename_gem` leftover-identity rewrite/verification for README, homepage, and changelog URLs that still say `GemTemplate` or point at `bowerbird-app/gem_template`
+- `bin/rename_gem` leftover-identity rewrite/verification for README, homepage, and changelog URLs that still say `RecordingStudio::YouTube` or point at `bowerbird-app/recording_studio_youtube`
 
 ### Changed
 - Dummy GitHub tags: Recording Studio `v4.2.0`, Accessible `v0.6.0`, Root Switchable `v0.5.0`, FlatPack `v0.1.133`
@@ -55,7 +80,7 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Require `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService` from core instead of shipping copies
 
 ### Removed
-- Copied `lib/gem_template/hooks.rb` and `lib/gem_template/services/base_service.rb`
+- Copied `lib/recording_studio_youtube/hooks.rb` and `lib/recording_studio_youtube/services/base_service.rb`
 - Product-shipped `ExampleService`
 - Custom `flat_pack_sidebar` authenticated shell
 
@@ -90,10 +115,11 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_gem_template/compare/v0.2.2...HEAD
-[0.2.2]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.2
-[0.2.1]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.1
-[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.0
-[0.1.2]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.2
-[0.1.1]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.1
-[0.1.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.3.0
+[0.2.2]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.2.2
+[0.2.1]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.2.1
+[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.2.0
+[0.1.2]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.1.2
+[0.1.1]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.1.1
+[0.1.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.1.0

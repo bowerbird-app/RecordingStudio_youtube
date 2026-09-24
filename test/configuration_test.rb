@@ -4,15 +4,15 @@ require "test_helper"
 
 class ConfigurationTest < Minitest::Test
   def setup
-    @configuration = GemTemplate::Configuration.new
+    @configuration = RecordingStudio::YouTube::Configuration.new
   end
 
   def test_merge_updates_known_attributes
-    @configuration.merge!(api_key: "abc123", timeout: 9, enable_feature_x: true)
+    @configuration.merge!(api_key: "abc123", timeout: 9, retries: 4)
 
     assert_equal "abc123", @configuration.api_key
     assert_equal 9, @configuration.timeout
-    assert_equal true, @configuration.enable_feature_x
+    assert_equal 4, @configuration.retries
   end
 
   def test_merge_ignores_unknown_keys
@@ -23,28 +23,48 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_merge_with_non_enumerable_is_noop
-    original = @configuration.to_h
+    @configuration.api_key = "abc123"
+    @configuration.timeout = 9
+    @configuration.retries = 4
 
     @configuration.merge!(nil)
 
-    assert_nil @configuration.api_key if original[:api_key].nil?
-    assert_equal original[:api_key], @configuration.api_key unless original[:api_key].nil?
-    assert_equal original[:timeout], @configuration.timeout
-    assert_equal original[:enable_feature_x], @configuration.enable_feature_x
+    assert_equal "abc123", @configuration.api_key
+    assert_equal 9, @configuration.timeout
+    assert_equal 4, @configuration.retries
   end
 
-  def test_initialize_uses_environment_api_key_and_defaults
-    previous_value = ENV.fetch("GEM_TEMPLATE_API_KEY", nil)
-    ENV["GEM_TEMPLATE_API_KEY"] = "env-token"
+  def test_initialize_prefers_youtube_api_key_over_youtube
+    previous_api_key = ENV.fetch("youtube_api_key", nil)
+    previous_youtube = ENV.fetch("youtube", nil)
+    ENV["youtube_api_key"] = "env-token"
+    ENV["youtube"] = "fallback-token"
 
-    configuration = GemTemplate::Configuration.new
+    configuration = RecordingStudio::YouTube::Configuration.new
 
     assert_equal "env-token", configuration.api_key
-    assert_equal false, configuration.enable_feature_x
+    assert_equal 0, configuration.retries
     assert_equal 5, configuration.timeout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
+    refute_includes configuration.inspect, "env-token"
+    refute_includes configuration.to_h.values.map(&:to_s), "env-token"
   ensure
-    ENV["GEM_TEMPLATE_API_KEY"] = previous_value
+    ENV["youtube_api_key"] = previous_api_key
+    ENV["youtube"] = previous_youtube
+  end
+
+  def test_initialize_uses_youtube_when_api_key_name_is_absent
+    previous_api_key = ENV.fetch("youtube_api_key", nil)
+    previous_youtube = ENV.fetch("youtube", nil)
+    ENV.delete("youtube_api_key")
+    ENV["youtube"] = "fallback-token"
+
+    configuration = RecordingStudio::YouTube::Configuration.new
+
+    assert_equal "fallback-token", configuration.api_key
+  ensure
+    ENV["youtube_api_key"] = previous_api_key
+    ENV["youtube"] = previous_youtube
   end
 
   def test_merge_accepts_string_keys
@@ -66,8 +86,8 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_configure_without_block_is_safe
-    GemTemplate.configure
+    RecordingStudio::YouTube.configure
 
-    assert_kind_of GemTemplate::Configuration, GemTemplate.configuration
+    assert_kind_of RecordingStudio::YouTube::Configuration, RecordingStudio::YouTube.configuration
   end
 end

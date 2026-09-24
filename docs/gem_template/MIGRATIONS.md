@@ -1,5 +1,5 @@
 > **Architecture Documentation**
-> *   **Canonical Source:** [bowerbird-app/gem_template](https://github.com/bowerbird-app/gem_template/tree/main/docs/gem_template)
+> *   **Canonical Source:** [bowerbird-app/recording_studio_youtube](https://github.com/bowerbird-app/RecordingStudio_youtube/tree/main/docs/recording_studio_youtube)
 > *   **Last Updated:** May 5, 2026
 >
 > *Maintainers: Please update the date above when modifying this file.*
@@ -8,18 +8,18 @@
 
 # Migrations
 
-This guide explains how to work with database migrations in GemTemplate.
+This guide explains how to work with database migrations in RecordingStudio::YouTube.
 
 ---
 
 ## Installing Migrations in a Host App
 
-GemTemplate includes a migrations generator that copies engine migrations to your host application with proper timestamps.
+RecordingStudio::YouTube includes a migrations generator that copies engine migrations to your host application with proper timestamps.
 
 ### Run the Generator
 
 ```bash
-rails generate gem_template:migrations
+rails generate recording_studio_youtube:migrations
 ```
 
 This will:
@@ -48,7 +48,7 @@ bin/rails db:migrate
 To see what migrations would be installed without making changes:
 
 ```bash
-rails generate gem_template:migrations --pretend
+rails generate recording_studio_youtube:migrations --pretend
 ```
 
 ### Force Reinstall
@@ -56,7 +56,7 @@ rails generate gem_template:migrations --pretend
 To overwrite existing migrations (useful for updates):
 
 ```bash
-rails generate gem_template:migrations --no-skip-existing --force
+rails generate recording_studio_youtube:migrations --no-skip-existing --force
 ```
 
 ---
@@ -114,13 +114,9 @@ touch db/migrate/$(date +%Y%m%d%H%M%S)_create_gem_template_pages.rb
 
 ## Engine Migration Structure
 
-```
-db/
-└── migrate/
-   └── 20250101000001_create_gem_template_pages.rb
-```
+V1 ships no files under `db/migrate`. The gem does not persist YouTube resources. `recording_studio_youtube:migrations` reports that no migrations were found.
 
-Migrations are included in the gem via the gemspec:
+Migrations added later are included in the gem via the gemspec:
 
 ```ruby
 spec.files = Dir["{app,config,db,lib}/**/*", ...]
@@ -134,7 +130,7 @@ When you release a new version with additional migrations:
 
 1. Host app developers run the generator again:
    ```bash
-   rails generate gem_template:migrations
+   rails generate recording_studio_youtube:migrations
    ```
 
 2. Only new migrations are copied (existing ones are skipped)

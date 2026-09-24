@@ -1,5 +1,5 @@
 > **Architecture Documentation**
-> *   **Canonical Source:** [bowerbird-app/gem_template](https://github.com/bowerbird-app/gem_template/tree/main/docs/gem_template)
+> *   **Canonical Source:** [bowerbird-app/recording_studio_youtube](https://github.com/bowerbird-app/RecordingStudio_youtube/tree/main/docs/recording_studio_youtube)
 > *   **Last Updated:** December 11, 2025
 >
 > *Maintainers: Please update the date above when modifying this file.*
@@ -8,7 +8,7 @@
 
 # Engine Hooks
 
-GemTemplate provides a powerful hook system that allows host applications to customize engine behavior without modifying the engine's source code.
+RecordingStudio::YouTube provides a powerful hook system that allows host applications to customize engine behavior without modifying the engine's source code.
 
 ---
 
@@ -37,10 +37,10 @@ GemTemplate provides a powerful hook system that allows host applications to cus
 ### Block Syntax
 
 ```ruby
-# config/initializers/gem_template.rb
-GemTemplate.configure do |config|
+# config/initializers/recording_studio_youtube.rb
+RecordingStudio::YouTube.configure do |config|
   config.hooks.after_initialize do
-    Rails.logger.info "GemTemplate initialized!"
+    Rails.logger.info "RecordingStudio::YouTube initialized!"
   end
   
   config.hooks.before_service do |service_class, args|
@@ -63,48 +63,17 @@ class GemTemplateAuditHook
   end
 end
 
-# config/initializers/gem_template.rb
-GemTemplate.configure do |config|
+# config/initializers/recording_studio_youtube.rb
+RecordingStudio::YouTube.configure do |config|
   config.hooks.after_service GemTemplateAuditHook.new
 end
 ```
 
 ---
 
-## Extending Models
+## Models and controllers
 
-Add associations, validations, or methods to engine models:
-
-```ruby
-GemTemplate.configure do |config|
-  config.hooks.extend_model :Example do
-    include Auditable
-    
-    belongs_to :organization
-    validates :organization, presence: true
-    
-    def custom_method
-      # Your logic here
-    end
-  end
-end
-```
-
----
-
-## Extending Controllers
-
-Add before_actions, concerns, or methods to engine controllers:
-
-```ruby
-GemTemplate.configure do |config|
-  config.hooks.extend_controller :HomeController do
-    before_action :authenticate_user!
-    
-    include YourConcern
-  end
-end
-```
+This engine does not walk ActiveRecord models or ActionController descendants. `extend_model` and `extend_controller` blocks are not applied. Lifecycle hooks still run: `before_initialize`, `on_configuration`, and `after_initialize`.
 
 ---
 
@@ -113,7 +82,7 @@ end
 ### Wrap Services in Transactions
 
 ```ruby
-GemTemplate.configure do |config|
+RecordingStudio::YouTube.configure do |config|
   config.hooks.around_service do |service, block|
     ActiveRecord::Base.transaction do
       block.call
@@ -125,14 +94,14 @@ end
 ### Log All Service Calls
 
 ```ruby
-GemTemplate.configure do |config|
+RecordingStudio::YouTube.configure do |config|
   config.hooks.before_service do |service_class, args|
-    Rails.logger.info "[GemTemplate] #{service_class.name} called"
+    Rails.logger.info "[RecordingStudio::YouTube] #{service_class.name} called"
   end
   
   config.hooks.after_service do |service_class, result|
     status = result.success? ? "succeeded" : "failed"
-    Rails.logger.info "[GemTemplate] #{service_class.name} #{status}"
+    Rails.logger.info "[RecordingStudio::YouTube] #{service_class.name} #{status}"
   end
 end
 ```
@@ -140,13 +109,13 @@ end
 ### Add Metrics/Instrumentation
 
 ```ruby
-GemTemplate.configure do |config|
+RecordingStudio::YouTube.configure do |config|
   config.hooks.around_service do |service, block|
     start_time = Time.current
     result = block.call
     duration = Time.current - start_time
     
-    StatsD.measure("gem_template.#{service.class.name.demodulize.underscore}", duration)
+    StatsD.measure("recording_studio_youtube.#{service.class.name.demodulize.underscore}", duration)
     result
   end
 end
@@ -159,7 +128,7 @@ end
 The engine triggers custom hooks at specific points. You can listen for these:
 
 ```ruby
-GemTemplate.configure do |config|
+RecordingStudio::YouTube.configure do |config|
   config.hooks.on :example_created do |example|
     Notifier.notify_admin(example)
   end
@@ -194,7 +163,7 @@ Engine views include content injection points:
 Override engine partials by creating matching files in your host app:
 
 ```
-app/views/gem_template/home/_sidebar.html.erb  # Overrides engine partial
+app/views/recording_studio_youtube/home/_sidebar.html.erb  # Overrides engine partial
 ```
 
 ---
@@ -204,7 +173,7 @@ app/views/gem_template/home/_sidebar.html.erb  # Overrides engine partial
 Hooks run in the order they're registered. To control order:
 
 ```ruby
-GemTemplate.configure do |config|
+RecordingStudio::YouTube.configure do |config|
   config.hooks.after_initialize priority: 10 do
     # Runs first (lower = earlier)
   end
@@ -222,7 +191,7 @@ end
 By default, hook errors are logged but don't stop execution. To change this:
 
 ```ruby
-GemTemplate.configure do |config|
+RecordingStudio::YouTube.configure do |config|
   config.hooks.raise_on_error = true  # Raise exceptions from hooks
 end
 ```
@@ -236,11 +205,11 @@ end
 class HooksTest < ActiveSupport::TestCase
   setup do
     @called = false
-    GemTemplate.configuration.hooks.after_initialize { @called = true }
+    RecordingStudio::YouTube.configuration.hooks.after_initialize { @called = true }
   end
   
   test "after_initialize hook is called" do
-    GemTemplate::Hooks.run(:after_initialize)
+    RecordingStudio::YouTube::Hooks.run(:after_initialize)
     assert @called
   end
 end
@@ -262,8 +231,8 @@ end
 
 | Component | Extension Method |
 |-----------|------------------|
-| Models | `config.hooks.extend_model :ModelName` |
-| Controllers | `config.hooks.extend_controller :ControllerName` |
+| Models | Not scanned |
+| Controllers | Not scanned |
 | Services | `before_service`, `after_service`, `around_service` |
 | Views | `content_for` blocks, partial overrides |
 | Lifecycle | `before_initialize`, `after_initialize` |

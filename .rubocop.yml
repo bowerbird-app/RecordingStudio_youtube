@@ -18,10 +18,13 @@ Layout/LineLength:
 
 # Relax metrics for test files and generators
 Metrics/ClassLength:
+  Max: 100
   Exclude:
     - 'test/**/*'
 
 Metrics/MethodLength:
+  Max: 10
+  CountAsOne: ['array', 'hash', 'heredoc']
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
@@ -30,6 +33,9 @@ Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
 
 # Allow empty blocks in tests (common for stubs/mocks)
 Lint/EmptyBlock:

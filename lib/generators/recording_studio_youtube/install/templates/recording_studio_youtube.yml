@@ -1,0 +1,7 @@
+development:
+  api_key: "dev-key"
+  timeout: 5
+
+production:
+  api_key: <%= ENV["youtube_api_key"] %>
+  timeout: 5

@@ -29,7 +29,7 @@ Then open the app and sign in with:
 
 ## Useful Routes
 
-- `/` - dummy app home page and template guidance
+- `/` - YouTube search demo. A query in `q` calls `RecordingStudio::YouTube.search` and renders the returned results.
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` - dummy-only starter pages
