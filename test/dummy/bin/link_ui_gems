@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Point Tailwind @source paths at the installed FlatPack and Recording Studio gems.
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+mkdir -p vendor
+
+link_gem() {
+  local name="$1"
+  local gem_name="$2"
+  local target
+  # Drop the parent bundle so `bundle show` reads test/dummy/Gemfile.
+  target="$(env -u BUNDLE_GEMFILE -u BUNDLE_LOCKFILE -u BUNDLE_BIN_PATH -u BUNDLER_SETUP -u BUNDLER_VERSION -u RUBYOPT -u RUBYLIB bundle show "$gem_name")"
+  ln -sfn "$target" "vendor/$name"
+}
+
+link_gem flat_pack flat_pack
+link_gem recording_studio recording_studio

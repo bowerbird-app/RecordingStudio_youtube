@@ -103,6 +103,7 @@ class RecordingStudioYouTubeTest < Minitest::Test
 
     assert_includes application_layout, '<html data-theme="rounded">'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/variables"'
+    assert_includes application_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes application_layout, "javascript_importmap_tags"
     assert_includes application_layout, "min-h-screen"
     refute_includes application_layout, "mt-28"
@@ -116,9 +117,35 @@ class RecordingStudioYouTubeTest < Minitest::Test
     assert_includes tailwind_source, "flatpack-*/app/components/**/*.{rb,erb}"
     assert_includes tailwind_source, "../../../vendor/bundle/**/recording_studio/app/views/**/*.erb"
     assert_includes tailwind_source, "recordingstudio-*/app/views/**/*.erb"
+    assert_includes tailwind_source, "--radius-md: 1rem;"
     refute_includes tailwind_source, "@theme"
-    refute_includes tailwind_source, ":root {"
     refute_includes tailwind_source, "--color-fp-primary"
+    refute_includes tailwind_source, "--color-primary:"
+  end
+
+  def test_default_layout_head_loads_flatpack_application
+    head = File.read(File.expand_path("dummy/app/views/recording_studio/_default_layout_head.html.erb", __dir__))
+
+    assert_includes head, 'stylesheet_link_tag "flat_pack/application"'
+  end
+
+  def test_tailwind_sources_reach_installed_flatpack_and_recording_studio
+    css = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
+
+    assert_includes css, '@source "../../../vendor/flat_pack/app/components"'
+    assert_includes css, '@source "../../../vendor/recording_studio/app/views"'
+
+    dummy = File.expand_path("dummy", __dir__)
+    link = system("bin/link_ui_gems", chdir: dummy)
+    assert link, "bin/link_ui_gems failed"
+
+    components = File.realpath(File.join(dummy, "vendor/flat_pack/app/components"))
+    views = File.realpath(File.join(dummy, "vendor/recording_studio/app/views"))
+    layout = File.join(views, "layouts/recording_studio/default_layout.html.erb")
+
+    assert File.directory?(components)
+    assert File.file?(layout)
+    assert Dir.glob(File.join(components, "**/button/**/*.rb")).any?
   end
 
   def test_recording_studio_keeps_strict_recordable_declarations_enabled
