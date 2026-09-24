@@ -19,13 +19,16 @@ class LiveYoutubeTest < Minitest::Test
     comments = RecordingStudio::YouTube.comments(video_id: VIDEO_ID, max_results: 1)
 
     assert_equal VIDEO_ID, video.id
-    refute_nil video.title
+    assert_equal "Me at the zoo", video.title
+    assert_equal video.channel_id, channel.id
     refute_nil video.url
-    refute_nil channel.id
     refute_nil channel.uploads_playlist_id
     refute_empty videos.items
     refute_empty search.items
-    assert_operator comments.items.length, :>=, 0
+    assert_instance_of RecordingStudio::YouTube::Page, comments
+    assert_kind_of Hash, comments.raw
+    assert comments.raw.key?("items")
+    assert comments.items.all?(RecordingStudio::YouTube::CommentThread)
     puts "live video=#{video.id} channel=#{channel.id} uploads=#{videos.items.length} " \
          "search=#{search.items.length} comments=#{comments.items.length}"
   end

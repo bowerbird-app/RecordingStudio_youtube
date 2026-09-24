@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+- The example `gem_template_pages` migration. The migrations generator no longer copies a template table into a host app.
+- `enable_feature_x`. Configuration keeps YouTube settings only.
+
 ### Added
 - `RecordingStudio::YouTube` reads the YouTube Data API with one client. Public calls use an API key. User calls use a bearer token supplied by the host.
 - Search, video, channel, channel uploads, playlist, playlist item, and comment thread reads. Pages keep the caller's page token and do not walk further pages.

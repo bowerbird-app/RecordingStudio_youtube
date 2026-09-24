@@ -8,11 +8,11 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_merge_updates_known_attributes
-    @configuration.merge!(api_key: "abc123", timeout: 9, enable_feature_x: true)
+    @configuration.merge!(api_key: "abc123", timeout: 9, retries: 4)
 
     assert_equal "abc123", @configuration.api_key
     assert_equal 9, @configuration.timeout
-    assert_equal true, @configuration.enable_feature_x
+    assert_equal 4, @configuration.retries
   end
 
   def test_merge_ignores_unknown_keys
@@ -25,13 +25,13 @@ class ConfigurationTest < Minitest::Test
   def test_merge_with_non_enumerable_is_noop
     @configuration.api_key = "abc123"
     @configuration.timeout = 9
-    @configuration.enable_feature_x = true
+    @configuration.retries = 4
 
     @configuration.merge!(nil)
 
     assert_equal "abc123", @configuration.api_key
     assert_equal 9, @configuration.timeout
-    assert_equal true, @configuration.enable_feature_x
+    assert_equal 4, @configuration.retries
   end
 
   def test_initialize_prefers_youtube_api_key_over_youtube
@@ -43,7 +43,7 @@ class ConfigurationTest < Minitest::Test
     configuration = RecordingStudio::YouTube::Configuration.new
 
     assert_equal "env-token", configuration.api_key
-    assert_equal false, configuration.enable_feature_x
+    assert_equal 1, configuration.retries
     assert_equal 5, configuration.timeout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
     refute_includes configuration.inspect, "env-token"

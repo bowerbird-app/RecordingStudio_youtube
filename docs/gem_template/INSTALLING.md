@@ -75,7 +75,6 @@ Creates `config/initializers/recording_studio_youtube.rb`:
 ```ruby
 RecordingStudio::YouTube.configure do |config|
   # config.api_key = ENV["youtube_api_key"]
-  # config.enable_feature_x = false
   # config.timeout = 5
 end
 ```
@@ -117,7 +116,6 @@ Create `config/initializers/recording_studio_youtube.rb`:
 ```ruby
 RecordingStudio::YouTube.configure do |config|
   config.api_key = ENV["youtube_api_key"]
-  config.enable_feature_x = true
   config.timeout = 10
 end
 ```

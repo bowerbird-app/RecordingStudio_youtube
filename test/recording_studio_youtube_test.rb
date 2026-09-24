@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class GemTemplateTest < Minitest::Test
+class RecordingStudioYouTubeTest < Minitest::Test
   def test_version_matches_release
     assert_equal "0.2.2", ::RecordingStudio::YouTube::VERSION
   end

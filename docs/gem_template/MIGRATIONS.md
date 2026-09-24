@@ -114,13 +114,9 @@ touch db/migrate/$(date +%Y%m%d%H%M%S)_create_gem_template_pages.rb
 
 ## Engine Migration Structure
 
-```
-db/
-└── migrate/
-   └── 20250101000001_create_gem_template_pages.rb
-```
+V1 ships no files under `db/migrate`. The gem does not persist YouTube resources. `recording_studio_youtube:migrations` reports that no migrations were found.
 
-Migrations are included in the gem via the gemspec:
+Migrations added later are included in the gem via the gemspec:
 
 ```ruby
 spec.files = Dir["{app,config,db,lib}/**/*", ...]

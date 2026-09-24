@@ -33,8 +33,8 @@ This will:
 | Option              | Type    | Default                          | Description                                 |
 |---------------------|---------|----------------------------------|---------------------------------------------|
 | `api_key`           | String  | `ENV["youtube_api_key"]`    | API key for external service integration.  |
-| `enable_feature_x`  | Boolean | `false`                          | Toggle optional feature X.                 |
 | `timeout`           | Integer | `5`                              | Timeout (seconds) for external calls.      |
+| `retries`           | Integer | `1`                              | Extra attempts for HTTP 500 and 503.       |
 
 ### RecordingStudio Host-App Declarations
 
@@ -68,9 +68,8 @@ Edit `config/initializers/recording_studio_youtube.rb`:
 
 ```ruby
 RecordingStudio::YouTube.configure do |config|
-  config.api_key          = ENV["youtube_api_key"]
-  config.enable_feature_x = true
-  config.timeout          = 10
+  config.api_key = ENV["youtube_api_key"]
+  config.timeout = 10
 end
 ```
 
@@ -83,12 +82,10 @@ If you prefer environment-specific static settings, create `config/recording_stu
 ```yaml
 development:
   api_key: "dev-key"
-  enable_feature_x: true
   timeout: 5
 
 production:
   api_key: <%= ENV["youtube_api_key"] %>
-  enable_feature_x: false
   timeout: 5
 ```
 
@@ -122,14 +119,11 @@ Configuration is merged in the following order (later sources override earlier o
 ## Accessing Configuration at Runtime
 
 ```ruby
-RecordingStudio::YouTube.configuration.api_key
-# => "your-api-key"
-
-RecordingStudio::YouTube.configuration.enable_feature_x
-# => true
+RecordingStudio::YouTube.configuration.timeout
+# => 5
 
 RecordingStudio::YouTube.configuration.to_h
-# => { api_key: "...", enable_feature_x: true, timeout: 5 }
+# => { timeout: 5, retries: 1, api_key_configured: true }
 ```
 
 You can access these values from anywhere in your application or from within the engine's controllers, models, and jobs.

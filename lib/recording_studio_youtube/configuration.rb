@@ -8,7 +8,7 @@ module RecordingStudio
 
       attr_accessor :api_key, :oauth_client_id, :oauth_client_secret, :timeout,
                     :instrumentation_enabled, :retries, :retry_wait,
-                    :transport, :base_url, :user_agent, :enable_feature_x
+                    :transport, :base_url, :user_agent
       attr_writer :open_timeout, :read_timeout, :write_timeout
       attr_reader :hooks
 
@@ -101,7 +101,6 @@ module RecordingStudio
         @transport = nil
         @base_url = DEFAULT_BASE_URL
         @user_agent = "RecordingStudio-YouTube/#{VERSION}"
-        @enable_feature_x = false
         @hooks = RecordingStudio::Hooks.new
       end
 

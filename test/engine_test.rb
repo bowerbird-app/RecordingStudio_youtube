@@ -35,7 +35,7 @@ class EngineTest < Minitest::Test
       hook_payload = cfg
     end
 
-    xcfg = Struct.new(:recording_studio_youtube).new({ enable_feature_x: true })
+    xcfg = Struct.new(:recording_studio_youtube).new({ retries: 4 })
     app_config = Struct.new(:x).new(xcfg)
     app = Struct.new(:config) do
       def config_for(_name)
@@ -49,7 +49,7 @@ class EngineTest < Minitest::Test
     assert_equal RecordingStudio::YouTube.configuration, hook_payload
     assert_equal "from_yaml", RecordingStudio::YouTube.configuration.api_key
     assert_equal 12, RecordingStudio::YouTube.configuration.timeout
-    assert_equal true, RecordingStudio::YouTube.configuration.enable_feature_x
+    assert_equal 4, RecordingStudio::YouTube.configuration.retries
   end
 
   def test_load_config_treats_a_missing_yaml_file_as_absence
@@ -104,7 +104,7 @@ class EngineTest < Minitest::Test
 
     assert_nil RecordingStudio::YouTube.configuration.api_key
     assert_equal 5, RecordingStudio::YouTube.configuration.timeout
-    assert_equal false, RecordingStudio::YouTube.configuration.enable_feature_x
+    assert_equal 1, RecordingStudio::YouTube.configuration.retries
   end
 
   def test_load_config_raises_when_yaml_cannot_be_merged
