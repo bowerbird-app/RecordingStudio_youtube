@@ -26,8 +26,8 @@ require "minitest/autorun"
 #    - Controllers are namespaced correctly
 #
 # 3. Orphan Detection (after rename):
-#    - No old gem_template references in Ruby files
-#    - No old directories (lib/gem_template, app/controllers/gem_template, etc.)
+#    - No old recording_studio_youtube references in Ruby files
+#    - No old directories (lib/recording_studio_youtube, app/controllers/recording_studio_youtube, etc.)
 #    - No old gemspec or main lib file
 #
 # 4. Runtime Loading:
@@ -222,12 +222,12 @@ class RenameVerificationTest < Minitest::Test
   # No Orphaned Old Name References
   # ============================================================
 
-  # These tests check that the original "gem_template" name has been
+  # These tests check that the original "recording_studio_youtube" name has been
   # completely replaced. They only run after a rename has occurred.
 
   def test_no_old_gem_template_references_in_ruby_files
-    # Skip if current name IS gem_template (nothing to check - hasn't been renamed yet)
-    skip if @gem_name == "gem_template"
+    # Skip if current name IS recording_studio_youtube (nothing to check - hasn't been renamed yet)
+    skip if @gem_name == "recording_studio_youtube"
 
     ruby_files = Dir.glob(File.join(@root, "**", "*.rb"))
     # Exclude test files and this verification test itself
@@ -237,77 +237,79 @@ class RenameVerificationTest < Minitest::Test
 
     ruby_files.each do |file|
       content = File.read(file)
-      files_with_old_refs << file if content.include?("gem_template") || content.include?("GemTemplate")
+      if content.include?("recording_studio_youtube") || content.include?("RecordingStudio::YouTube")
+        files_with_old_refs << file
+      end
     end
 
     assert files_with_old_refs.empty?,
-           "Found old 'gem_template' references in:\n#{files_with_old_refs.join("\n")}"
+           "Found old 'recording_studio_youtube' references in:\n#{files_with_old_refs.join("\n")}"
   end
 
   def test_no_old_gem_template_directories
-    skip if @gem_name == "gem_template"
+    skip if @gem_name == "recording_studio_youtube"
 
     old_dirs = [
-      File.join(@root, "lib", "gem_template"),
-      File.join(@root, "app", "controllers", "gem_template"),
-      File.join(@root, "app", "views", "gem_template")
+      File.join(@root, "lib", "recording_studio_youtube"),
+      File.join(@root, "app", "controllers", "recording_studio_youtube"),
+      File.join(@root, "app", "views", "recording_studio_youtube")
     ]
 
     existing_old_dirs = old_dirs.select { |d| Dir.exist?(d) }
 
     assert existing_old_dirs.empty?,
-           "Found old 'gem_template' directories:\n#{existing_old_dirs.join("\n")}"
+           "Found old 'recording_studio_youtube' directories:\n#{existing_old_dirs.join("\n")}"
   end
 
   def test_no_old_gemspec_file
-    skip if @gem_name == "gem_template"
+    skip if @gem_name == "recording_studio_youtube"
 
-    old_gemspec = File.join(@root, "gem_template.gemspec")
+    old_gemspec = File.join(@root, "recording_studio_youtube.gemspec")
     refute File.exist?(old_gemspec),
            "Old gemspec file should not exist: #{old_gemspec}"
   end
 
   def test_no_old_main_lib_file
-    skip if @gem_name == "gem_template"
+    skip if @gem_name == "recording_studio_youtube"
 
-    old_lib = File.join(@root, "lib", "gem_template.rb")
+    old_lib = File.join(@root, "lib", "recording_studio_youtube.rb")
     refute File.exist?(old_lib),
            "Old main lib file should not exist: #{old_lib}"
   end
 
   def test_readme_has_no_leftover_template_identity_after_rename
-    skip if @gem_name == "gem_template"
+    skip if @gem_name == "recording_studio_youtube"
 
     content = File.read(File.join(@root, "README.md"))
-    refute_includes content, "GemTemplate",
-                    "README.md still contains leftover GemTemplate identity"
-    refute_match %r{bowerbird-app/gem_template(?:["'/]|$)}, content,
-                 "README.md still points at bowerbird-app/gem_template"
-    refute_includes content, "https://github.com/bowerbird-app/RecordingStudio_gem_template",
+    refute_includes content, "RecordingStudio::YouTube",
+                    "README.md still contains leftover RecordingStudio::YouTube identity"
+    refute_match %r{bowerbird-app/recording_studio_youtube(?:["'/]|$)}, content,
+                 "README.md still points at bowerbird-app/recording_studio_youtube"
+    refute_includes content, "https://github.com/bowerbird-app/RecordingStudio_youtube",
                     "README.md still points at the template homepage"
   end
 
   def test_changelog_has_no_leftover_template_identity_after_rename
-    skip if @gem_name == "gem_template"
+    skip if @gem_name == "recording_studio_youtube"
 
     content = File.read(File.join(@root, "CHANGELOG.md"))
-    refute_includes content, "GemTemplate",
-                    "CHANGELOG.md still contains leftover GemTemplate identity"
-    refute_match %r{bowerbird-app/gem_template(?:["'/]|$)}, content,
-                 "CHANGELOG.md still points at bowerbird-app/gem_template"
-    refute_includes content, "https://github.com/bowerbird-app/RecordingStudio_gem_template",
+    refute_includes content, "RecordingStudio::YouTube",
+                    "CHANGELOG.md still contains leftover RecordingStudio::YouTube identity"
+    refute_match %r{bowerbird-app/recording_studio_youtube(?:["'/]|$)}, content,
+                 "CHANGELOG.md still points at bowerbird-app/recording_studio_youtube"
+    refute_includes content, "https://github.com/bowerbird-app/RecordingStudio_youtube",
                     "CHANGELOG.md still points at the template homepage"
   end
 
   def test_gemspec_homepage_has_no_leftover_template_identity_after_rename
-    skip if @gem_name == "gem_template"
+    skip if @gem_name == "recording_studio_youtube"
 
     content = read_gemspec
-    refute_includes content, "GemTemplate",
-                    "Gemspec still contains leftover GemTemplate identity"
-    refute_match %r{bowerbird-app/gem_template(?:["'/]|$)}, content,
-                 "Gemspec still points at bowerbird-app/gem_template"
-    refute_includes content, "https://github.com/bowerbird-app/RecordingStudio_gem_template",
+    refute_includes content, "RecordingStudio::YouTube",
+                    "Gemspec still contains leftover RecordingStudio::YouTube identity"
+    refute_match %r{bowerbird-app/recording_studio_youtube(?:["'/]|$)}, content,
+                 "Gemspec still points at bowerbird-app/recording_studio_youtube"
+    refute_includes content, "https://github.com/bowerbird-app/RecordingStudio_youtube",
                     "Gemspec still points at the template homepage"
   end
 

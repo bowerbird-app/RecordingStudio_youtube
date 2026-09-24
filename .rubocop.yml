@@ -22,6 +22,7 @@ Metrics/ClassLength:
     - 'test/**/*'
 
 Metrics/MethodLength:
+  CountAsOne: ['array', 'hash', 'heredoc']
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
@@ -30,6 +31,9 @@ Metrics/AbcSize:
   Exclude:
     - 'test/**/*'
     - 'lib/generators/**/*'
+
+Metrics/ParameterLists:
+  CountKeywordArgs: false
 
 # Allow empty blocks in tests (common for stubs/mocks)
 Lint/EmptyBlock:

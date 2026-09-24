@@ -1,5 +1,5 @@
 > **Architecture Documentation**
-> *   **Canonical Source:** [bowerbird-app/gem_template](https://github.com/bowerbird-app/gem_template/tree/main/docs/gem_template)
+> *   **Canonical Source:** [bowerbird-app/recording_studio_youtube](https://github.com/bowerbird-app/RecordingStudio_youtube/tree/main/docs/recording_studio_youtube)
 > *   **Last Updated:** September 1, 2026
 >
 > *Maintainers: Please update the date above when modifying this file.*
@@ -28,8 +28,8 @@ This guide covers setting up the gem for local development outside of GitHub Cod
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/bowerbird-app/RecordingStudio_gem_template.git
-cd RecordingStudio_gem_template
+git clone https://github.com/bowerbird-app/RecordingStudio_youtube.git
+cd RecordingStudio_youtube
 ```
 
 ### 2. Install Gem Dependencies
@@ -185,7 +185,7 @@ bin/rails db:migrate
 
 Cloud Agents discover project skills from `.cursor/skills/` (and `.agents/skills/`) and plugin rules from `.cursor/rules/` at agent start. They do not inherit a laptop Cursor plugin.
 
-`.cursor/environment.json` is a repo-file-managed environment. It sets `name` to `recording-studio-gem-template` so Cloud Agents do not fall through to a laptop Personal snapshot when `main` has no environment file. It sets `install` to `.cursor/install.sh`, which provisions the stack then runs `.cursor/fetch-skills.sh`. It deliberately omits `snapshot` and `agentCanUpdateSnapshot`. Pinning a Personal build snapshot would skip `install` and leave `.cursor/skills/` and `.cursor/rules/` missing.
+`.cursor/environment.json` is a repo-file-managed environment. It sets `name` to `recording-studio-youtube` so Cloud Agents do not fall through to a laptop Personal snapshot when `main` has no environment file. It sets `install` to `.cursor/install.sh`, which provisions the stack then runs `.cursor/fetch-skills.sh`. It deliberately omits `snapshot` and `agentCanUpdateSnapshot`. Pinning a Personal build snapshot would skip `install` and leave `.cursor/skills/` and `.cursor/rules/` missing.
 
 The script lists `recording-studio-*` skill ids from the public GitHub contents API, then fetches each `SKILL.md` from `raw.githubusercontent.com` into `.cursor/skills/<id>/SKILL.md`. Extra skills come from the plugin catalog (`skill-sources.json`). If the catalog is missing or invalid, extras are skipped and Recording Studio skills still fetch.
 
@@ -198,15 +198,15 @@ After skills, the same script lists `*.mdc` files from the plugin `rules/` direc
 ## Project Structure
 
 ```
-gem_template/
+recording_studio_youtube/
 ├── app/                      # Engine application code
-│   ├── controllers/gem_template/
-│   └── views/gem_template/
+│   ├── controllers/recording_studio_youtube/
+│   └── views/recording_studio_youtube/
 ├── config/
 │   └── routes.rb             # Engine routes
 ├── lib/
-│   ├── gem_template.rb       # Main entry point
-│   ├── gem_template/
+│   ├── recording_studio_youtube.rb       # Main entry point
+│   ├── recording_studio_youtube/
 │   │   ├── configuration.rb  # Configuration API
 │   │   ├── engine.rb         # Engine definition
 │   │   └── version.rb
@@ -222,7 +222,7 @@ gem_template/
 ├── docs/                     # Documentation
 ├── Gemfile
 ├── Rakefile
-└── gem_template.gemspec
+└── recording_studio_youtube.gemspec
 ```
 
 ---

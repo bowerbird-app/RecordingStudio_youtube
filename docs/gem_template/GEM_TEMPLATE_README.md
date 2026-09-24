@@ -1,16 +1,16 @@
 > **Architecture Documentation**
-> *   **Canonical Source:** [bowerbird-app/gem_template](https://github.com/bowerbird-app/gem_template/tree/main/docs/gem_template)
+> *   **Canonical Source:** [bowerbird-app/recording_studio_youtube](https://github.com/bowerbird-app/RecordingStudio_youtube/tree/main/docs/recording_studio_youtube)
 > *   **Last Updated:** September 1, 2026
 >
 > *Maintainers: Please update the date above when modifying this file.*
 
 ---
 
-> **📌 Note:** This documentation directory (`docs/gem_template/`) is preserved during gem renaming and serves as architectural reference material. When you rename your gem, these files intentionally remain under `gem_template` to document the original template structure.
+> **📌 Note:** This documentation directory (`docs/recording_studio_youtube/`) is preserved during gem renaming and serves as architectural reference material. When you rename your gem, these files intentionally remain under `recording_studio_youtube` to document the original template structure.
 
 ---
 
-# GemTemplate
+# RecordingStudio::YouTube
 
 A template for building **Rails mountable engine gems** with PostgreSQL UUID primary keys, TailwindCSS, and GitHub Codespaces integration.
 
@@ -84,15 +84,15 @@ For current UI work, prefer the top-level README plus the live FlatPack demo app
 ## 📁 Project Structure
 
 ```
-gem_template/
+recording_studio_youtube/
 ├── app/
-│   ├── controllers/gem_template/
-│   └── views/gem_template/
+│   ├── controllers/recording_studio_youtube/
+│   └── views/recording_studio_youtube/
 ├── config/routes.rb
 ├── db/migrate/              # Engine migrations
 ├── lib/
-│   ├── gem_template.rb
-│   ├── gem_template/
+│   ├── recording_studio_youtube.rb
+│   ├── recording_studio_youtube/
 │   │   ├── configuration.rb
 │   │   ├── engine.rb
 │   │   ├── version.rb
@@ -103,7 +103,7 @@ gem_template/
 ├── .cursor/                 # Repo-managed Cloud Agent env (name + install, no snapshot)
 ├── test/dummy/              # Test Rails app
 ├── docs/                    # Documentation
-└── gem_template.gemspec
+└── recording_studio_youtube.gemspec
 ```
 
 ---
