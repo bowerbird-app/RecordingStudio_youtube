@@ -5,12 +5,27 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 mkdir -p vendor
 
+# An outer `bundle exec` points Bundler at the gem's Gemfile. Drop that environment
+# so `bundle show` reads test/dummy/Gemfile and the dummy app's installed gems.
+bundle_show() {
+  local gem_name="$1"
+  local -a clear_env=()
+  local key
+
+  while IFS= read -r key; do
+    clear_env+=("-u" "$key")
+  done < <(env | awk -F= '/^(BUNDLE_|BUNDLER_)/ {print $1}')
+
+  clear_env+=("-u" "RUBYOPT" "-u" "RUBYLIB" "-u" "GEM_HOME" "-u" "GEM_PATH")
+  env "${clear_env[@]}" BUNDLE_GEMFILE="$PWD/Gemfile" bundle show "$gem_name"
+}
+
 link_gem() {
   local name="$1"
   local gem_name="$2"
   local target
-  # Drop the parent bundle so `bundle show` reads test/dummy/Gemfile.
-  target="$(env -u BUNDLE_GEMFILE -u BUNDLE_LOCKFILE -u BUNDLE_BIN_PATH -u BUNDLER_SETUP -u BUNDLER_VERSION -u RUBYOPT -u RUBYLIB bundle show "$gem_name")"
+
+  target="$(bundle_show "$gem_name")"
   ln -sfn "$target" "vendor/$name"
 }
 

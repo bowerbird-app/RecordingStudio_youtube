@@ -39,13 +39,17 @@ class InstallGeneratorTest < Minitest::Test
 
   def test_add_tailwind_source_injects_concrete_directories
     with_temp_app do |dir|
+      components = Pathname.new(dir).join("flat_pack/app/components")
+      FileUtils.mkdir_p(components)
       css_path = File.join(dir, "app/assets/tailwind/application.css")
       File.write(css_path, "@import \"tailwindcss\";\n")
       generator = build_generator(dir)
 
       Rails.stub(:root, Pathname.new(dir)) do
-        generator.stub(:say, nil) { generator.add_tailwind_source }
-        assert_concrete_tailwind_sources(dir, File.read(css_path), generator)
+        generator.stub(:flatpack_components_directory, components) do
+          generator.stub(:say, nil) { generator.add_tailwind_source }
+          assert_concrete_tailwind_sources(dir, File.read(css_path), generator)
+        end
       end
     end
   end
