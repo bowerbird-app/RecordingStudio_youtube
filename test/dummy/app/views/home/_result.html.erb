@@ -1,0 +1,36 @@
+<% thumbnail = item.thumbnails["medium"] || item.thumbnails.primary %>
+
+<%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+  <% card.body do %>
+    <div class="flex gap-4">
+      <% if thumbnail %>
+        <%= image_tag thumbnail.url,
+              alt: "",
+              width: thumbnail.width,
+              height: thumbnail.height,
+              class: "h-24 w-40 shrink-0 rounded-[var(--radius-md)] object-cover" %>
+      <% end %>
+
+      <div class="min-w-0 flex-1">
+        <div class="mb-2 flex flex-wrap items-center gap-2">
+          <%= render FlatPack::Badge::Component.new(text: (item.resource_type || "result").to_s, size: :sm) %>
+          <% if item.channel_title.present? %>
+            <span class="text-sm text-(--surface-muted-content-color)"><%= youtube_plain(item.channel_title) %></span>
+          <% end %>
+        </div>
+
+        <h2 class="text-base font-medium leading-6">
+          <% if item.url.present? %>
+            <%= link_to youtube_plain(item.title), item.url, target: "_blank", rel: "noopener noreferrer", class: "hover:underline" %>
+          <% else %>
+            <%= youtube_plain(item.title) %>
+          <% end %>
+        </h2>
+
+        <% if item.description.present? %>
+          <p class="mt-2 text-sm leading-6"><%= youtube_plain(item.description) %></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

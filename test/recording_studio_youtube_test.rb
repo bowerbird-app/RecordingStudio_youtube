@@ -183,15 +183,17 @@ class RecordingStudioYouTubeTest < Minitest::Test
     refute_includes readme, "recording_studio/v3.0.0"
   end
 
-  def test_dummy_home_page_uses_demo_title_only
-    view_path = File.expand_path("dummy/app/views/home/index.html.erb", __dir__)
-    view_source = File.read(view_path)
+  def test_dummy_home_page_is_a_youtube_search_demo
+    view_source = File.read(File.expand_path("dummy/app/views/home/index.html.erb", __dir__))
+    result_source = File.read(File.expand_path("dummy/app/views/home/_result.html.erb", __dir__))
 
-    assert_includes view_source, 'title: "Template Demo"'
-    assert_includes view_source, 'subtitle: "This dummy app is the browser-facing demo surface for the template."'
-    assert_includes view_source, "FlatPack::Card::Component"
+    assert_includes view_source, 'title: "YouTube search"'
+    assert_includes view_source, "FlatPack::SearchInput::Component"
+    assert_includes view_source, 'name: "q"'
     assert_includes view_source, "dummy_page_nav"
-    refute_includes view_source, 'title: "Demo"'
+    assert_includes result_source, "item.title"
+    assert_includes result_source, "item.url"
+    refute_includes view_source, "What's working"
     refute_includes view_source, "FlatPack::Breadcrumb::Component"
   end
 
