@@ -133,6 +133,10 @@ class EngineTest < Minitest::Test
     assert_equal 5, RecordingStudio::YouTube.configuration.timeout
   end
 
+  def test_youtube_directory_camelizes_to_the_public_namespace
+    assert_equal "YouTube", "youtube".camelize
+  end
+
   def test_engine_does_not_scan_models_or_controllers
     names = RecordingStudio::YouTube::Engine.initializers.map(&:name)
 

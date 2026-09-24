@@ -2,6 +2,12 @@
 
 module RecordingStudio
   module YouTube
+    # The controller directory is app/controllers/recording_studio/youtube.
+    # Zeitwerk camelizes that segment. Without this acronym it expects Youtube.
+    ActiveSupport::Inflector.inflections(:en) do |inflect|
+      inflect.acronym "YouTube"
+    end
+
     module ConfigLoader
       MISSING_CONFIG = "Could not load configuration. No such file"
 
