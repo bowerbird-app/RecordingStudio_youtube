@@ -189,7 +189,7 @@ The `recording_studio_youtube` helper provides access to all engine routes.
 
 ## RecordingStudio Host-App Check
 
-This template's dummy app uses RecordingStudio `v4.2.0` (`~> 4.2` in the gemspec). Keep
+This template's dummy app uses RecordingStudio `v4.2.2` (`~> 4.2` in the gemspec). Keep
 `config.require_recordable_declarations = true`, declare every configured recordable with
 `recording_studio_recordable(...)`, and create roots with `RecordingStudio.root_recording_for(recordable)`.
 Child recordings must be created with an explicit `parent_recording`.
