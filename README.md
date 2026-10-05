@@ -183,6 +183,8 @@ YouTube API Services policies limit how long a client may store API data. Non-au
 
 The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v4.2.2, Accessible at v0.9.1, and FlatPack at v0.1.177. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app.
 
+Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
+
 ```bash
 bundle exec rake test
 bundle exec rubocop
