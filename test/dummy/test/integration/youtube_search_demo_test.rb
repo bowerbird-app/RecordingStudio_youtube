@@ -45,6 +45,9 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "https://www.youtube.com/watch?v=abc123def45"
     assert_includes response.body, "https://img.example/medium.jpg"
     assert_includes response.body, "1 result"
+    assert_select "a[href='/users/sign_out'][data-turbo-method='delete']", text: /Sign out/i
+    refute_includes response.body, "<button url="
+    refute_includes response.body, 'url="/users/sign_out"'
   end
 
   test "home page shows the next page link when youtube returns one" do
@@ -57,6 +60,15 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
     end
 
     assert_includes response.body, "page_token=NEXT"
+  end
+
+  test "sign out link ends the session" do
+    delete destroy_user_session_path
+
+    assert_response :redirect
+    follow_redirect!
+    get root_path
+    assert_redirected_to new_user_session_path
   end
 
   test "home page shows a youtube error instead of an empty result list" do
