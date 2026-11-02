@@ -159,7 +159,15 @@ class FetchSkillsTest < Minitest::Test
 
     assert_includes gitignore, ".cursor/rules/"
     assert_includes gitignore, ".cursor/skills/"
-    assert_equal "0.3.0", RecordingStudio::YouTube::VERSION
+    assert_includes gitignore, "coverage/"
+    assert_includes gitignore, "test/dummy/coverage/"
+    assert_equal "0.3.7", RecordingStudio::YouTube::VERSION
+
+    coverage_tracked, coverage_status = Open3.capture2(
+      "git", "-C", root, "ls-files", "--", "coverage", "test/dummy/coverage"
+    )
+    assert_equal 0, coverage_status.exitstatus
+    assert_equal "", coverage_tracked.strip
 
     tracked, status = Open3.capture2("git", "-C", root, "ls-files", "--", ".cursor/rules")
     assert_equal 0, status.exitstatus

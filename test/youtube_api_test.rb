@@ -80,7 +80,7 @@ class YoutubeApiTest < Minitest::Test
       assert_equal "NEXT", result.next_page_token
       assert_equal "PREV", result.previous_page_token
       assert result.more?
-      assert_nil result.instance_variable_get(:@videos_by_id) if result.respond_to?(:videos_by_id)
+      assert_nil result.videos_by_id if result.respond_to?(:videos_by_id)
       refute_respond_to item, :duration
     end
     assert_equal 1, transport.calls.length
@@ -313,10 +313,10 @@ class YoutubeApiTest < Minitest::Test
   end
 
   def test_oauth_url_carries_youtube_scopes_and_not_a_client_secret
-    configuration = RecordingStudio::YouTube::Configuration.new
-    configuration.api_key = "test-key"
-    configuration.oauth_client_id = "client-id"
-    RecordingStudio::YouTube.instance_variable_set(:@configuration, configuration)
+    RecordingStudio::YouTube.configure do |configuration|
+      configuration.api_key = "test-key"
+      configuration.oauth_client_id = "client-id"
+    end
     url = RecordingStudio::YouTube::Oauth.authorization_url(
       redirect_uri: "https://app.example/callback",
       state: "state-token",
@@ -445,14 +445,14 @@ class YoutubeApiTest < Minitest::Test
   end
 
   def with_transport(transport, api_key: "test-key", retries: 0, instrumentation: false)
-    configuration = RecordingStudio::YouTube::Configuration.new
-    configuration.api_key = api_key
-    configuration.oauth_client_id = nil
-    configuration.transport = transport
-    configuration.retries = retries
-    configuration.retry_wait = 0
-    configuration.instrumentation_enabled = instrumentation
-    RecordingStudio::YouTube.instance_variable_set(:@configuration, configuration)
+    RecordingStudio::YouTube.configure do |configuration|
+      configuration.api_key = api_key
+      configuration.oauth_client_id = nil
+      configuration.transport = transport
+      configuration.retries = retries
+      configuration.retry_wait = 0
+      configuration.instrumentation_enabled = instrumentation
+    end
     yield
   end
 

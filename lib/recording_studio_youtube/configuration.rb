@@ -53,7 +53,7 @@ module RecordingStudio
           instrumentation_enabled: instrumentation_enabled?,
           retries: retries,
           base_url: base_url,
-          hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
+          hooks_registered: hooks.registered_counts
         }
       end
 

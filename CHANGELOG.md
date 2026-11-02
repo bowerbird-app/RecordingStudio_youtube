@@ -7,6 +7,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.7] - 2026-11-02
+
+### Changed
+- Configuration `to_h` reports hook totals through core `Hooks#registered_counts`.
+- Dummy Root Switchable `internal_route?` rescues `ActionController::RoutingError` only.
+- CI and Security non-matrix `setup-ruby` steps pin `ruby-version: '3.3'` so ubuntu-latest can resolve Ruby.
+- Coverage HTML under `coverage/` and `test/dummy/coverage/` is gitignored and no longer tracked.
+- Dummy Accessible `v0.18.0` and Trashable `v0.11.0` (already on main after `v0.3.6`).
+
+### Added
+- Changelog sections for the tagged 0.3.1–0.3.6 dummy-pin releases that shipped without notes.
+
+## [0.3.6] - 2026-10-14
+
+### Changed
+- Dummy Root Switchable `v0.9.0`, Accessible `v0.17.0`, Recording Studio `v4.6.0`.
+
+## [0.3.5] - 2026-10-12
+
+### Changed
+- Dummy Root Switchable `v0.8.0`, Recording Studio `v4.5.0`, Accessible `v0.15.0`, plus the i18n gem releases for Accessible and Root Switchable.
+
+## [0.3.4] - 2026-10-09
+
+### Changed
+- Dummy Recording Studio `v4.4.0`.
+
+## [0.3.3] - 2026-10-08
+
+### Changed
+- Dummy Recording Studio `v4.3.0`.
+
+## [0.3.2] - 2026-10-05
+
+### Changed
+- Dummy app credentials use the shared Recording Studio development master key.
+
+## [0.3.1] - 2026-10-02
+
+### Changed
+- Dummy Recording Studio `v4.2.2`.
+
 ## [0.3.0] - 2026-09-24
 
 ### Fixed
@@ -115,7 +157,14 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.7...HEAD
+[0.3.7]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.6...v0.3.7
+[0.3.6]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.5...v0.3.6
+[0.3.5]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.4...v0.3.5
+[0.3.4]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.3...v0.3.4
+[0.3.3]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.2...v0.3.3
+[0.3.2]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.3.0
 [0.2.2]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.2.2
 [0.2.1]: https://github.com/bowerbird-app/RecordingStudio_youtube/releases/tag/v0.2.1

@@ -2,6 +2,6 @@
 
 module RecordingStudio
   module YouTube
-    VERSION = "0.3.0"
+    VERSION = "0.3.7"
   end
 end

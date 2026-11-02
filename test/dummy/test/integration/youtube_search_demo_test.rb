@@ -2,6 +2,7 @@
 
 require "test_helper"
 require "devise/test/integration_helpers"
+require "json"
 
 class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
@@ -15,13 +16,14 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
   end
 
   test "home page is a search form and does not call youtube without a query" do
-    called = false
-    with_youtube_search(->(**) { called = true }) do
+    transport = RecordingTransport.new
+
+    with_youtube_transport(transport) do
       get root_path
     end
 
     assert_response :success
-    assert_not called
+    assert_empty transport.calls
     assert_select "input[name='q']"
     assert_includes response.body, "YouTube search"
     assert_includes response.body, "Enter a search to see public YouTube results."
@@ -29,9 +31,9 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
   end
 
   test "home page renders the youtube results that were returned" do
-    page = search_page("Me at the &#39;zoo&#39;", "jawed", "abc123def45")
+    transport = RecordingTransport.new(search_response("Me at the &#39;zoo&#39;", "jawed", "abc123def45"))
 
-    with_youtube_search(page) do
+    with_youtube_transport(transport) do
       get root_path, params: { q: "zoo" }
     end
 
@@ -46,9 +48,11 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
   end
 
   test "home page shows the next page link when youtube returns one" do
-    page = search_page("Me at the zoo", "jawed", "abc123def45", next_page_token: "NEXT")
+    transport = RecordingTransport.new(
+      search_response("Me at the zoo", "jawed", "abc123def45", next_page_token: "NEXT")
+    )
 
-    with_youtube_search(page) do
+    with_youtube_transport(transport) do
       get root_path, params: { q: "zoo" }
     end
 
@@ -56,9 +60,11 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
   end
 
   test "home page shows a youtube error instead of an empty result list" do
-    raise_error = ->(**) { raise RecordingStudio::YouTube::ConfigurationError, "YouTube API key is not configured" }
+    transport = RecordingTransport.new(
+      RecordingStudio::YouTube::ConfigurationError.new("YouTube API key is not configured")
+    )
 
-    with_youtube_search(raise_error) do
+    with_youtube_transport(transport) do
       get root_path, params: { q: "zoo" }
     end
 
@@ -69,36 +75,69 @@ class YoutubeSearchDemoTest < ActionDispatch::IntegrationTest
 
   private
 
-  def with_youtube_search(replacement)
-    owner = RecordingStudio::YouTube.singleton_class
-    owner.alias_method(:search_without_test_double, :search)
-    owner.define_method(:search) do |**kwargs|
-      replacement.respond_to?(:call) ? replacement.call(**kwargs) : replacement
+  class RecordingTransport
+    attr_reader :calls
+
+    def initialize(response = nil)
+      @response = response
+      @calls = []
     end
-    yield
-  ensure
-    owner.alias_method(:search, :search_without_test_double)
-    owner.remove_method(:search_without_test_double)
+
+    def perform(uri, headers, _timeouts)
+      @calls << { uri: uri, headers: headers }
+      raise @response if @response.is_a?(Exception)
+
+      @response
+    end
   end
 
-  def search_page(title, channel, video_id, next_page_token: nil)
-    item = RecordingStudio::YouTube::SearchItem.from_api(
-      "id" => { "kind" => "youtube#video", "videoId" => video_id },
-      "snippet" => {
-        "title" => title,
-        "description" => "The first video",
-        "channelTitle" => channel,
-        "thumbnails" => {
-          "medium" => { "url" => "https://img.example/medium.jpg", "width" => 320, "height" => 180 }
+  def with_youtube_transport(transport)
+    configuration = RecordingStudio::YouTube.configuration
+    previous = {
+      transport: configuration.transport,
+      api_key: configuration.api_key,
+      retries: configuration.retries,
+      retry_wait: configuration.retry_wait,
+      instrumentation_enabled: configuration.instrumentation_enabled
+    }
+
+    RecordingStudio::YouTube.configure do |config|
+      config.transport = transport
+      config.api_key = "test-key"
+      config.retries = 0
+      config.retry_wait = 0
+      config.instrumentation_enabled = false
+    end
+
+    yield
+  ensure
+    RecordingStudio::YouTube.configure do |config|
+      config.transport = previous[:transport]
+      config.api_key = previous[:api_key]
+      config.retries = previous[:retries]
+      config.retry_wait = previous[:retry_wait]
+      config.instrumentation_enabled = previous[:instrumentation_enabled]
+    end
+  end
+
+  def search_response(title, channel, video_id, next_page_token: nil)
+    body = {
+      "pageInfo" => { "totalResults" => 1, "resultsPerPage" => 1 },
+      "items" => [
+        {
+          "id" => { "kind" => "youtube#video", "videoId" => video_id },
+          "snippet" => {
+            "title" => title,
+            "description" => "The first video",
+            "channelTitle" => channel,
+            "thumbnails" => {
+              "medium" => { "url" => "https://img.example/medium.jpg", "width" => 320, "height" => 180 }
+            }
+          }
         }
-      }
-    )
-    RecordingStudio::YouTube::Page.new(
-      items: [item],
-      next_page_token: next_page_token,
-      total_results: 1,
-      results_per_page: 1,
-      raw: {}
-    )
+      ]
+    }
+    body["nextPageToken"] = next_page_token if next_page_token
+    [200, JSON.generate(body), { "content-type" => "application/json" }]
   end
 end
