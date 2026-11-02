@@ -313,10 +313,10 @@ class YoutubeApiTest < Minitest::Test
   end
 
   def test_oauth_url_carries_youtube_scopes_and_not_a_client_secret
-    RecordingStudio::YouTube.configure do |configuration|
-      configuration.api_key = "test-key"
-      configuration.oauth_client_id = "client-id"
-    end
+    configuration = RecordingStudio::YouTube::Configuration.new
+    configuration.api_key = "test-key"
+    configuration.oauth_client_id = "client-id"
+    RecordingStudio::YouTube.instance_variable_set(:@configuration, configuration)
     url = RecordingStudio::YouTube::Oauth.authorization_url(
       redirect_uri: "https://app.example/callback",
       state: "state-token",
@@ -445,14 +445,14 @@ class YoutubeApiTest < Minitest::Test
   end
 
   def with_transport(transport, api_key: "test-key", retries: 0, instrumentation: false)
-    RecordingStudio::YouTube.configure do |configuration|
-      configuration.api_key = api_key
-      configuration.oauth_client_id = nil
-      configuration.transport = transport
-      configuration.retries = retries
-      configuration.retry_wait = 0
-      configuration.instrumentation_enabled = instrumentation
-    end
+    configuration = RecordingStudio::YouTube::Configuration.new
+    configuration.api_key = api_key
+    configuration.oauth_client_id = nil
+    configuration.transport = transport
+    configuration.retries = retries
+    configuration.retry_wait = 0
+    configuration.instrumentation_enabled = instrumentation
+    RecordingStudio::YouTube.instance_variable_set(:@configuration, configuration)
     yield
   end
 
