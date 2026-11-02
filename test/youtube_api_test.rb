@@ -80,7 +80,7 @@ class YoutubeApiTest < Minitest::Test
       assert_equal "NEXT", result.next_page_token
       assert_equal "PREV", result.previous_page_token
       assert result.more?
-      assert_nil result.instance_variable_get(:@videos_by_id) if result.respond_to?(:videos_by_id)
+      assert_nil result.videos_by_id if result.respond_to?(:videos_by_id)
       refute_respond_to item, :duration
     end
     assert_equal 1, transport.calls.length
