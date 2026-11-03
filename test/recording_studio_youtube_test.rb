@@ -217,6 +217,13 @@ class RecordingStudioYouTubeTest < Minitest::Test
     refute_includes readme, "recording_studio/v3.0.0"
   end
 
+  def test_dummy_sign_out_button_uses_flatpack_href
+    helper_source = File.read(File.expand_path("dummy/app/helpers/application_helper.rb", __dir__))
+
+    assert_includes helper_source, "href: main_app.destroy_user_session_path"
+    refute_includes helper_source, "url: main_app.destroy_user_session_path"
+  end
+
   def test_dummy_home_page_is_a_youtube_search_demo
     view_source = File.read(File.expand_path("dummy/app/views/home/index.html.erb", __dir__))
     result_source = File.read(File.expand_path("dummy/app/views/home/_result.html.erb", __dir__))

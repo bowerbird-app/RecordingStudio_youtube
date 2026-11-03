@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Dummy Sign out button uses FlatPack `href:` so it is a real link with `data-turbo-method: delete` instead of a dead `<button url="…">`.
+
 ## [0.3.7] - 2026-11-02
 
 ### Changed
