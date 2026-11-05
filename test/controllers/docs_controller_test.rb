@@ -24,6 +24,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   test "install page renders successfully" do
     get docs_install_path
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "h1", text: "Install"
     assert_includes response.body, "Step 1"
     assert_includes response.body, "Provide one section title for each step"
@@ -33,6 +34,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   test "config page renders successfully" do
     get docs_config_path
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "h1", text: "Config"
     expected_placeholder = "Replace this placeholder with the configuration settings your generated gem exposes."
 
@@ -47,6 +49,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     response_text = response.body.gsub(/\s+/, " ").strip
 
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "h1", text: "Recordable types"
     assert_includes(
       response.body,
@@ -82,6 +85,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
     get docs_recordings_tree_path
 
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "h1", text: "Recordings tree"
     assert_includes response.body, "Workspace: Tree Workspace"
     assert_includes response.body, "Folder: Reference"
@@ -97,6 +101,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   test "gem_views page renders successfully" do
     get docs_gem_views_path
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "h1", text: "Gem Views"
     assert_select "table", minimum: 1
     refute_includes response.body, "app/views/recording_studio_youtube/home/index.html.erb"
@@ -105,6 +110,7 @@ class DocsControllerTest < ActionDispatch::IntegrationTest
   test "methods page renders successfully" do
     get docs_methods_path
     assert_response :success
+    assert_select "h1", count: 1
     assert_select "h1", text: "Methods"
     assert_includes response.body, "Document the public methods your addon exposes."
     assert_includes response.body, "Example method"
