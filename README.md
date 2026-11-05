@@ -18,6 +18,8 @@ end
 
 Calls to `ENV` live in `RecordingStudio::YouTube::Configuration`. Tests and hosts can assign `config.api_key` directly. The gem builds an authorization URL and does not exchange tokens, so it does not store a client secret.
 
+Engine screens use core's default layout. `RecordingStudio::YouTube.configuration.layout` defaults to `RecordingStudio::DEFAULT_LAYOUT` (`recording_studio/default_layout`) and is validated by `RecordingStudio::Layout.accept`. Pass a layout name, `false`, or a callable that accepts `controller:`. Call `recording_studio_layout` from the controller. Do not hard-code `layout "application"` or include `RecordingStudio::UsesDefaultLayout`.
+
 `RecordingStudio::YouTube.diagnostics` reports whether a key and an OAuth client ID are configured. It does not print the values. Pass `probe: true` to read one known public video and report whether public API access is working.
 
 ## Read public data with an API key
@@ -181,7 +183,7 @@ YouTube API Services policies limit how long a client may store API data. Non-au
 
 ## Develop this gem
 
-The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v4.7.0, Accessible at v0.18.0, Trashable at v0.11.0, Root Switchable at v0.9.0, Metrics at v0.2.0, Cache at v0.5.0, and FlatPack at v0.1.177. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app.
+The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v6.3.0, Accessible at v0.24.1, Trashable at v0.12.2, Root Switchable at v0.11.5, Metrics at v0.7.2, Cache at v0.6.2, and FlatPack at v0.1.341. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app.
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 

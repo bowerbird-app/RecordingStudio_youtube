@@ -1,12 +1,10 @@
-<% dummy_page_nav(title: "YouTube search", back_url: root_path) %>
+<% dummy_page_nav(
+  title: "YouTube search",
+  subtitle: "Search public YouTube videos, channels, and playlists.",
+  back_url: root_path
+) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "YouTube search",
-    subtitle: "Search public YouTube videos, channels, and playlists.",
-    variant: :h1
-  ) %>
-
   <%= form_with url: root_path, method: :get, class: "flex w-full flex-col gap-3 sm:flex-row sm:items-end" do %>
     <div class="min-w-0 flex-1">
       <%= render FlatPack::SearchInput::Component.new(

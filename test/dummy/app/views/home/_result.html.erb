@@ -1,6 +1,6 @@
 <% thumbnail = item.thumbnails["medium"] || item.thumbnails.primary %>
 
-<%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+<%= render FlatPack::Card::Component.new do |card| %>
   <% card.body do %>
     <div class="flex gap-4">
       <% if thumbnail %>
@@ -19,7 +19,7 @@
           <% end %>
         </div>
 
-        <h2 class="text-base font-medium leading-6">
+        <h2 class="text-base font-medium leading-6 break-words">
           <% if item.url.present? %>
             <%= link_to youtube_plain(item.title), item.url, target: "_blank", rel: "noopener noreferrer", class: "hover:underline" %>
           <% else %>
