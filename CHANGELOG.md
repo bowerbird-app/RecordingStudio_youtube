@@ -7,8 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- Dummy Sign out button uses FlatPack `href:` so it is a real link with `data-turbo-method: delete` instead of a dead `<button url="…">`.
+## [0.4.0] - 2026-11-05
+
+### Changed
+- Require `recording_studio` `>= 6.3.0`. The gemfile pins Recording Studio tag `v6.3.0`. The dummy also pins Accessible `v0.24.1`, Trashable `v0.12.2`, Root Switchable `v0.11.5`, Metrics `v0.7.2`, Cache `v0.6.2`, and FlatPack `v0.1.341`.
+- Engine controllers call `recording_studio_layout`. `RecordingStudio::YouTube.configuration.layout` defaults to `RecordingStudio::DEFAULT_LAYOUT` and is validated by `RecordingStudio::Layout.accept`.
+- Root and dummy lockfiles use Rails `8.1.4.1`, Rack `>= 3.2.8`, Nokogiri `>= 1.19.5`, Loofah `>= 2.25.3`, and `rails-html-sanitizer` `>= 1.7.2`. Local Ruby is `3.3.13`.
+- Dummy `FlatPack::Card` calls drop the removed `style:` argument.
+
+### Removed
+- Leftover template files `UPDATE_SUMMARY.md`, `MIGRATION_NOTES.md`, and `docs/gem_template/`.
+
+### Upgrade notes
+- See `UPGRADING.md`. Hosts must run Recording Studio `>= 6.3.0`. Set `config.layout` if engine screens should not use the core default layout. Call `recording_studio_layout` instead of a hard-coded layout string.
 
 ## [0.3.7] - 2026-11-02
 
@@ -160,7 +171,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.7...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.7...v0.4.0
 [0.3.7]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.5...v0.3.6
 [0.3.5]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.4...v0.3.5

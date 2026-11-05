@@ -10,7 +10,7 @@ module RecordingStudio
                     :instrumentation_enabled, :retries, :retry_wait,
                     :transport, :base_url, :user_agent
       attr_writer :open_timeout, :read_timeout, :write_timeout
-      attr_reader :hooks
+      attr_reader :hooks, :layout
 
       def initialize
         assign_credentials
@@ -28,6 +28,10 @@ module RecordingStudio
 
       def write_timeout
         @write_timeout || timeout
+      end
+
+      def layout=(value)
+        @layout = RecordingStudio::Layout.accept(value)
       end
 
       def api_key_configured?
@@ -92,6 +96,7 @@ module RecordingStudio
         @base_url = DEFAULT_BASE_URL
         @user_agent = "RecordingStudio-YouTube/#{VERSION}"
         @hooks = RecordingStudio::Hooks.new
+        @layout = RecordingStudio::Layout.accept(RecordingStudio::DEFAULT_LAYOUT)
       end
 
       def env_value(name)

@@ -4,17 +4,18 @@ require "test_helper"
 
 class RecordingStudioYouTubeTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.3.7", ::RecordingStudio::YouTube::VERSION
+    assert_equal "0.4.0", ::RecordingStudio::YouTube::VERSION
   end
 
   def test_engine_exists
     assert_kind_of Class, ::RecordingStudio::YouTube::Engine
   end
 
-  def test_gemspec_pins_recording_studio_4_2
+  def test_gemspec_pins_recording_studio_6_3
     gemspec = File.read(File.expand_path("../recording_studio_youtube.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.3.0"'
+    refute_includes gemspec, "~> 4.2"
   end
 
   def test_gemspec_excludes_cursor_config
@@ -41,21 +42,23 @@ class RecordingStudioYouTubeTest < Minitest::Test
     assert_includes install_script, "fetch-skills.sh"
   end
 
-  def test_dummy_gemfile_pins_verified_4x_github_tags
+  def test_dummy_gemfile_pins_verified_6x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.9.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.177"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.3.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.11.5"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.7.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.6.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     refute_includes gemfile, "recording_studio/v3.0.0"
+    refute_includes gemfile, 'tag: "v4.7.0"'
     refute_includes gemfile, 'tag: "v4.5.0"'
+    refute_includes gemfile, 'tag: "v0.1.177"'
     refute_includes gemfile, 'tag: "v0.1.133"'
-    refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.17.0"'
-    refute_includes gemfile, 'RecordingStudio_root_switchable", tag: "v0.8.0"'
+    refute_includes gemfile, 'RecordingStudio_accessible", tag: "v0.18.0"'
+    refute_includes gemfile, 'RecordingStudio_root_switchable", tag: "v0.9.0"'
     refute_includes gemfile, 'tag: "0.3.1"'
   end
 
@@ -124,12 +127,24 @@ class RecordingStudioYouTubeTest < Minitest::Test
     application_controller_path = File.expand_path("dummy/app/controllers/application_controller.rb", __dir__)
     controller_source = File.read(application_controller_path)
 
-    assert_includes controller_source, "include RecordingStudio::UsesDefaultLayout"
-    assert_includes controller_source, '"recording_studio/default_layout"'
-    assert_includes controller_source, "devise_controller? ? \"application\""
+    assert_includes controller_source, "recording_studio_layout"
+    assert_includes controller_source, "devise_controller?"
+    assert_includes controller_source, "RecordingStudio::YouTube.configuration.layout"
+    refute_includes controller_source, "UsesDefaultLayout"
+    refute_includes controller_source, 'layout "application"'
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
+  end
+
+  def test_engine_controller_uses_recording_studio_layout_macro
+    controller_source = File.read(
+      File.expand_path("../app/controllers/recording_studio/youtube/application_controller.rb", __dir__)
+    )
+
+    assert_includes controller_source, "recording_studio_layout { RecordingStudio::YouTube.configuration.layout }"
+    refute_includes controller_source, 'layout "application"'
+    refute_includes controller_source, "UsesDefaultLayout"
   end
 
   def test_dummy_login_layout_keeps_flatpack_assets_without_tight_main_offset
@@ -142,6 +157,9 @@ class RecordingStudioYouTubeTest < Minitest::Test
     assert_includes application_layout, "min-h-screen"
     refute_includes application_layout, "mt-28"
     refute_includes application_layout, "flat_pack_sidebar"
+
+    sessions_view = File.read(File.expand_path("dummy/app/views/devise/sessions/new.html.erb", __dir__))
+    refute_includes sessions_view, "style: :default"
   end
 
   def test_dummy_tailwind_keeps_flatpack_theme_selection_in_flatpack
@@ -197,7 +215,7 @@ class RecordingStudioYouTubeTest < Minitest::Test
     readme_path = File.expand_path("dummy/README.md", __dir__)
     readme_source = File.read(readme_path)
 
-    assert_includes readme_source, "This Rails app exists to validate the Recording Studio addon template"
+    assert_includes readme_source, "This Rails app exists to validate RecordingStudio::YouTube"
     assert_includes readme_source, "/recording_studio"
     assert_includes readme_source, "redirects to `/`"
     refute_includes readme_source, "flat_pack_sidebar"
@@ -207,9 +225,9 @@ class RecordingStudioYouTubeTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "RecordingStudio"
-    assert_includes readme, "v4.7.0"
-    assert_includes readme, "v0.1.177"
-    assert_includes readme, "v0.18.0"
+    assert_includes readme, "v6.3.0"
+    assert_includes readme, "v0.1.341"
+    assert_includes readme, "v0.24.1"
     refute_includes readme, "v0.1.133"
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
@@ -229,6 +247,7 @@ class RecordingStudioYouTubeTest < Minitest::Test
     result_source = File.read(File.expand_path("dummy/app/views/home/_result.html.erb", __dir__))
 
     assert_includes view_source, 'title: "YouTube search"'
+    refute_includes view_source, "FlatPack::PageTitle::Component"
     assert_includes view_source, "FlatPack::SearchInput::Component"
     assert_includes view_source, 'name: "q"'
     assert_includes view_source, "dummy_page_nav"
@@ -236,6 +255,15 @@ class RecordingStudioYouTubeTest < Minitest::Test
     assert_includes result_source, "item.url"
     refute_includes view_source, "What's working"
     refute_includes view_source, "FlatPack::Breadcrumb::Component"
+    refute_includes result_source, "style: :default"
+  end
+
+  def test_template_leftovers_are_not_shipped
+    root = File.expand_path("..", __dir__)
+
+    refute File.exist?(File.join(root, "UPDATE_SUMMARY.md"))
+    refute File.exist?(File.join(root, "MIGRATION_NOTES.md"))
+    refute File.exist?(File.join(root, "docs/gem_template"))
   end
 
   def test_dummy_docs_pages_use_minimal_flatpack_documentation_components

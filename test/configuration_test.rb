@@ -46,6 +46,7 @@ class ConfigurationTest < Minitest::Test
     assert_equal 0, configuration.retries
     assert_equal 5, configuration.timeout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
+    assert_equal RecordingStudio::DEFAULT_LAYOUT, configuration.layout
     refute_includes configuration.inspect, "env-token"
     refute_includes configuration.to_h.values.map(&:to_s), "env-token"
   ensure
@@ -89,5 +90,32 @@ class ConfigurationTest < Minitest::Test
     RecordingStudio::YouTube.configure
 
     assert_kind_of RecordingStudio::YouTube::Configuration, RecordingStudio::YouTube.configuration
+  end
+
+  def test_layout_defaults_to_core_default_layout
+    assert_equal RecordingStudio::DEFAULT_LAYOUT, @configuration.layout
+  end
+
+  def test_layout_accepts_a_name_and_rejects_a_positional_callable
+    @configuration.layout = "application"
+
+    assert_equal "application", @configuration.layout
+
+    error = assert_raises(ArgumentError) do
+      @configuration.layout = ->(controller) { "application-#{controller.class}" }
+    end
+    assert_match(/controller:/, error.message)
+    assert_equal "application", @configuration.layout
+  end
+
+  def test_layout_accepts_false_and_a_keyword_callable
+    @configuration.layout = false
+
+    assert_equal false, @configuration.layout
+
+    callable = ->(controller:) { "application-#{controller.class}" }
+    @configuration.layout = callable
+
+    assert_equal callable, @configuration.layout
   end
 end
