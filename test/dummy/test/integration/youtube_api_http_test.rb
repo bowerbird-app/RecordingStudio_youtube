@@ -32,6 +32,41 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "youtube.search walks two pages through page_token without overlap" do
+    first_id = "aaaaaaaaaaa"
+    second_id = "bbbbbbbbbbb"
+    transport = SequenceTransport.new([
+      json(200, search_body(video_id: first_id, next_page_token: "PAGE2")),
+      json(200, search_body(video_id: second_id, next_page_token: nil))
+    ])
+    token = issue_token_for(@owner, @root).fetch(:token)
+
+    with_youtube_transport(transport) do
+      get "/recording_studio_api/api/v1/youtube/search",
+          params: { query: "zoo", type: "video" },
+          headers: bearer_headers(token)
+      assert_response :success
+      page_one = JSON.parse(response.body)
+      page_token = page_one.fetch("next_page_token")
+      assert_equal "PAGE2", page_token
+      assert_equal [first_id], page_one.fetch("items").map { |item| item.fetch("video_id") }
+
+      get "/recording_studio_api/api/v1/youtube/search",
+          params: { query: "zoo", type: "video", page_token: page_token },
+          headers: bearer_headers(token)
+      assert_response :success
+      page_two = JSON.parse(response.body)
+      assert_equal [second_id], page_two.fetch("items").map { |item| item.fetch("video_id") }
+      assert_empty page_one.fetch("items").map { |item| item.fetch("video_id") } &
+                   page_two.fetch("items").map { |item| item.fetch("video_id") }
+    end
+
+    first_query = URI.decode_www_form(transport.calls.fetch(0).fetch(:uri).query).to_h
+    second_query = URI.decode_www_form(transport.calls.fetch(1).fetch(:uri).query).to_h
+    refute first_query.key?("pageToken")
+    assert_equal "PAGE2", second_query.fetch("pageToken")
+  end
+
   test "youtube.search returns 200 for a token with view on the root" do
     transport = SequenceTransport.new([json(200, search_body)])
     with_youtube_transport(transport) do
@@ -165,13 +200,12 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
     }
   end
 
-  def search_body
-    {
-      "nextPageToken" => "NEXT",
+  def search_body(video_id: VIDEO_ID, next_page_token: "NEXT")
+    body = {
       "pageInfo" => { "totalResults" => 1, "resultsPerPage" => 1 },
       "items" => [
         {
-          "id" => { "kind" => "youtube#video", "videoId" => VIDEO_ID },
+          "id" => { "kind" => "youtube#video", "videoId" => video_id },
           "snippet" => {
             "title" => "Me at the zoo",
             "description" => "snippet",
@@ -180,6 +214,8 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
         }
       ]
     }
+    body["nextPageToken"] = next_page_token if next_page_token
+    body
   end
 
   def video_body

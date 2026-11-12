@@ -27,12 +27,6 @@ class ApiTest < Minitest::Test
     attr_reader :access_grant, :params, :root_recording
   end
 
-  def test_register_is_a_noop_when_api_is_unavailable
-    RecordingStudio::YouTube::Api.stub(:available?, false) do
-      assert_nil RecordingStudio::YouTube::Api.register!
-    end
-  end
-
   def test_gemspec_omits_runtime_recording_studio_api_dependency
     gemspec = File.read(File.expand_path("../recording_studio_youtube.gemspec", __dir__))
     gemfile = File.read(File.expand_path("../Gemfile", __dir__))
@@ -51,11 +45,16 @@ class ApiTest < Minitest::Test
     assert_includes engine, 'initializer "recording_studio_youtube.api"'
     assert_includes engine, "RecordingStudio::YouTube::Api.register!"
     assert_includes api, "RecordingStudioApi.register_endpoint"
-    assert_includes api, "return unless available?"
-    assert_includes api, "each_api"
+    assert_includes api, "return unless defined?(::RecordingStudioApi)"
+    assert_includes api, "RecordingStudioApi.configuration.each_api"
+    refute_includes api, "respond_to?"
     assert_includes endpoints, "youtube.search"
     assert_includes read, "access_grant.authorize!"
     assert_includes read, "AiTools.execute"
+    assert_includes read, 'TOOL = "youtube_get_comment_replies"'
+    refute_includes read, "AiTools.options"
+    refute RecordingStudio::YouTube::AiTools.respond_to?(:options)
+    assert RecordingStudio::YouTube::AiTools.respond_to?(:options, true)
     refute File.exist?(File.expand_path("../lib/recording_studio_youtube/mcp.rb", __dir__))
   end
 
@@ -67,7 +66,12 @@ class ApiTest < Minitest::Test
         registrations << { name: name, **options }
         registered[[options.fetch(:api, :public), name]] = true
       }) do
-        RecordingStudio::YouTube::Api.stub(:apis, [:public]) do
+        api_definition = Struct.new(:name).new(:public)
+        configuration = Object.new
+        configuration.define_singleton_method(:each_api) do |&block|
+          block&.call(api_definition)
+        end
+        RecordingStudioApi.stub(:configuration, configuration) do
           2.times { RecordingStudio::YouTube::Api.register! }
         end
       end

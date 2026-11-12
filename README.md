@@ -162,7 +162,7 @@ If `RecordingStudioAI` is loaded, the engine registers these read-only tools.
 - `youtube_get_playlist_items`
 - `youtube_get_comments`
 
-Each tool sets `read_only` and a cost. Search is `high` and requires confirmation because of the 100-call daily budget. The other tools are `low` and do not require confirmation. Tool arguments accept string or symbol keys. Tool results use `to_agent` and omit `raw`. Each tool authorizes the caller with Accessible on the request root at `:view` (or `access_grant.authorize!` when the caller is an API grant) before it spends the host YouTube key.
+Each tool sets `read_only` and a cost. Search is `high` and requires confirmation because of the 100-call daily budget. The other tools are `low` and do not require confirmation. Tool arguments accept string or symbol keys. Tool results use `to_agent` and omit `raw`.
 
 ## Recording Studio API
 
@@ -180,7 +180,7 @@ If `RecordingStudioApi` is loaded, the engine registers the same public reads as
 | `youtube.get_comments` | GET | `youtube/comments` |
 | `youtube.get_comment_replies` | GET | `youtube/comment_replies` |
 
-Handlers authorize with the request `AccessGrant` at `:view` on the root recording, then call the existing `RecordingStudio::YouTube` methods. Search cannot skip the 100-call daily budget. Writes, captions, `channel(mine:)`, and OAuth diagnostics stay off this surface.
+Handlers authorize with the request `AccessGrant` at `:view` on the root recording, then call the existing `RecordingStudio::YouTube` methods. Search spends the host YouTube Data API quota and cannot skip the 100-call daily `search.list` budget. Writes, captions, `channel(mine:)`, and OAuth diagnostics stay off this surface.
 
 `RecordingStudio::YouTube.capabilities` lists reads and the writes that are described but not implemented. A write capability has `implemented` false. Calling a write method on the module fails because the method is not defined.
 

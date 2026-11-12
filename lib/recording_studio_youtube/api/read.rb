@@ -57,10 +57,7 @@ module RecordingStudio
       end
 
       class CommentReplies < Read
-        def self.payload_for(params)
-          picked = RecordingStudio::YouTube::AiTools.options(stringify(params), %w[parent_id max_results page_token])
-          RecordingStudio::YouTube.comment_replies(**picked).to_agent
-        end
+        TOOL = "youtube_get_comment_replies"
       end
     end
   end

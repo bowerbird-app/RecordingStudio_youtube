@@ -61,7 +61,8 @@ module RecordingStudio
         "youtube_get_channel_videos" => ->(arguments) { channel_videos(arguments).to_agent },
         "youtube_get_playlist" => ->(arguments) { playlist(arguments) },
         "youtube_get_playlist_items" => ->(arguments) { playlist_items(arguments) },
-        "youtube_get_comments" => ->(arguments) { comments(arguments).to_agent }
+        "youtube_get_comments" => ->(arguments) { comments(arguments).to_agent },
+        "youtube_get_comment_replies" => ->(arguments) { comment_replies(arguments).to_agent }
       }.freeze
 
       def self.video(arguments)
@@ -100,6 +101,11 @@ module RecordingStudio
         RecordingStudio::YouTube.comments(**options(arguments, names))
       end
 
+      def self.comment_replies(arguments)
+        names = %w[parent_id max_results page_token]
+        RecordingStudio::YouTube.comment_replies(**options(arguments, names))
+      end
+
       def self.options(arguments, names)
         names.each_with_object({}) do |name, memo|
           key = argument_key(arguments, name)
@@ -115,7 +121,7 @@ module RecordingStudio
       end
 
       private_class_method :tool, :param, :video, :playlist, :search, :channel, :channel_videos,
-                           :playlist_items, :comments, :options, :argument_key
+                           :playlist_items, :comments, :comment_replies, :options, :argument_key
     end
   end
 end

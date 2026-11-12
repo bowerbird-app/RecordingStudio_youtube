@@ -12,22 +12,9 @@ module RecordingStudio
 
       class << self
         def register!
-          return unless available?
+          return unless defined?(::RecordingStudioApi)
 
-          apis.each { |api| register_on(api) }
-          true
-        end
-
-        def available?
-          defined?(RecordingStudioApi) &&
-            RecordingStudioApi.respond_to?(:register_endpoint) &&
-            RecordingStudioApi.respond_to?(:registered_endpoint)
-        end
-
-        def apis
-          return [:public] unless configuration_each_api?
-
-          RecordingStudioApi.configuration.each_api.map(&:name)
+          RecordingStudioApi.configuration.each_api { |api| register_on(api.name) }
         end
 
         def register_on(api)
@@ -40,13 +27,7 @@ module RecordingStudio
 
           RecordingStudioApi.register_endpoint(name, api: api, **endpoint.except(:name))
         end
-
-        def configuration_each_api?
-          defined?(RecordingStudioApi) &&
-            RecordingStudioApi.respond_to?(:configuration) &&
-            RecordingStudioApi.configuration.respond_to?(:each_api)
-        end
-        private :register_on, :register_endpoint!, :configuration_each_api?
+        private :register_on, :register_endpoint!
       end
     end
   end

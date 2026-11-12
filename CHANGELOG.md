@@ -10,14 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.5.0] - 2026-11-12
 
 ### Added
-- Public YouTube reads register on Recording Studio API when that gem is loaded: `youtube.search`, `youtube.get_video`, `youtube.get_videos`, `youtube.get_channel`, `youtube.get_channel_videos`, `youtube.get_playlist`, `youtube.get_playlist_items`, `youtube.get_comments`, and `youtube.get_comment_replies`. Search still uses the existing 100/day `search.list` quota. MCP advertises the endpoints automatically; this gem adds no MCP tools.
+- Public YouTube reads register on Recording Studio API when that gem is loaded: `youtube.search`, `youtube.get_video`, `youtube.get_videos`, `youtube.get_channel`, `youtube.get_channel_videos`, `youtube.get_playlist`, `youtube.get_playlist_items`, `youtube.get_comments`, and `youtube.get_comment_replies`. Search spends the host YouTube Data API quota on the existing 100/day `search.list` bucket. MCP advertises the endpoints automatically; this gem adds no MCP tools.
 - Dummy host mounts Recording Studio API `v0.21.3` and the pins it needs to boot (Admin `v2.11.0`, Logs `v0.7.3`, Icons `v0.2.0`, Moveable `v4.1.0`, Redis `~> 5.3`, FlatPack `v0.1.341`).
 
-### Fixed
-- Recording Studio AI YouTube tools authorize the caller with Accessible (or the API access grant) before spending the host YouTube API key.
-
 ### Upgrade notes
-- See `UPGRADING.md`. This gem still has no runtime dependency on Recording Studio API. Hosts that mount the API get the YouTube read endpoints after boot. Callers need `:view` on the request root.
+- See `UPGRADING.md`. This gem still has no runtime dependency on Recording Studio API. Hosts that mount the API get the YouTube read endpoints after boot. Callers need `:view` on the request root. Search spends the host YouTube Data API quota.
 
 ## [0.4.0] - 2026-11-05
 

@@ -24,8 +24,9 @@ module RecordingStudio
             name: :"youtube.search", http_verb: :get, path: "youtube/search", handler: Search,
             openapi: Endpoints.openapi(
               "Search public YouTube",
-              "Searches public videos, channels, or playlists. Uses the existing search.list quota bucket " \
-              "(100 calls a day). Results are light search items, not full videos.",
+              "Searches public videos, channels, or playlists. This spends the host YouTube Data API quota " \
+              "on the existing search.list bucket (100 calls a day). Results are light search items, not " \
+              "full videos.",
               SEARCH_FIELDS.map { |name, rules| Endpoints.query(name, rules[:description], type: rules[:type].to_s) }
             ),
             input_contract: Fields.query_contract(SEARCH_FIELDS)
