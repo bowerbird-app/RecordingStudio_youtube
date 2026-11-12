@@ -5,6 +5,7 @@ require "json"
 
 class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
   VIDEO_ID = "jNQXAC9IVRw"
+  PLAYLIST_ID = "PL1234567890abcdef"
 
   setup do
     @owner = User.find_or_create_by!(email: "youtube-api-http-owner@example.com") do |account|
@@ -81,6 +82,37 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
     assert_match(/quota/i, JSON.parse(response.body).dig("error", "message").to_s)
   end
 
+  test "youtube.get_playlist_items walks two dummy HTTP pages" do
+    next_token = "PAGE_TWO"
+    transport = SequenceTransport.new([
+      json(200, playlist_items_body(item_id: "item-page-1", next_page_token: next_token)),
+      json(200, playlist_items_body(item_id: "item-page-2"))
+    ])
+    headers = bearer_headers(issue_token_for(@owner, @root).fetch(:token))
+    path = "/recording_studio_api/api/v1/youtube/playlists/#{PLAYLIST_ID}/items"
+
+    with_youtube_transport(transport) do
+      get path, params: { max_results: 1 }, headers: headers
+      assert_response :success
+      first_page = JSON.parse(response.body)
+      first_ids = first_page.fetch("items").map { |item| item.fetch("id") }
+      assert_equal next_token, first_page.fetch("next_page_token")
+
+      get path, params: { max_results: 1, page_token: first_page.fetch("next_page_token") }, headers: headers
+      assert_response :success
+      second_page = JSON.parse(response.body)
+      second_ids = second_page.fetch("items").map { |item| item.fetch("id") }
+      assert_nil second_page["next_page_token"]
+      assert_empty first_ids & second_ids
+      refute_empty first_ids
+      refute_empty second_ids
+    end
+
+    assert_equal 2, transport.calls.length
+    refute query(transport.calls[0][:uri]).key?("pageToken")
+    assert_equal next_token, query(transport.calls[1][:uri]).fetch("pageToken")
+  end
+
   private
 
   class SequenceTransport
@@ -111,6 +143,10 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
 
   def json(status, body)
     [status, JSON.generate(body), { "content-type" => "application/json" }]
+  end
+
+  def query(uri)
+    URI.decode_www_form(uri.query.to_s).to_h
   end
 
   def bearer_headers(token)
@@ -144,6 +180,31 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
       token: token_result.value.fetch(:access_token),
       access_recording: provision.value.fetch(:access_recording)
     }
+  end
+
+  def playlist_items_body(item_id:, next_page_token: nil)
+    body = {
+      "pageInfo" => { "totalResults" => 2, "resultsPerPage" => 1 },
+      "items" => [
+        {
+          "id" => item_id,
+          "snippet" => {
+            "title" => "Me at the zoo",
+            "description" => "item",
+            "channelId" => "UC4QobU6STFB0P71PMvOGN5A",
+            "channelTitle" => "jawed",
+            "publishedAt" => "2005-04-24T03:31:52Z",
+            "position" => 0,
+            "thumbnails" => {
+              "default" => { "url" => "https://img.example/default.jpg", "width" => 120, "height" => 90 }
+            }
+          },
+          "contentDetails" => { "videoId" => VIDEO_ID }
+        }
+      ]
+    }
+    body["nextPageToken"] = next_page_token unless next_page_token.nil?
+    body
   end
 
   def video_body
