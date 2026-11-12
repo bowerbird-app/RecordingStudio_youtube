@@ -1,5 +1,17 @@
 # Upgrading RecordingStudio YouTube
 
+## Upgrading to 0.5.0
+
+`0.5.0` registers public YouTube reads on Recording Studio API when that gem is loaded. Update the host dependency to `recording_studio_youtube`, `~> 0.5.0`.
+
+1. No migrations in this gem.
+2. Public YouTube read methods keep their current contracts. Search still spends the `search.list` Search Queries budget (100 calls a day).
+3. If the host mounts Recording Studio API, YouTube read endpoints appear on each named API after boot. There is no extra MCP registration.
+4. Endpoint callers need Accessible `:view` on the request root. AI tools now make the same check before they spend the host YouTube key.
+5. This gem does not depend on Recording Studio API at runtime. The dummy host pins API `v0.21.3`, Admin `v2.11.0`, Logs `v0.7.3`, Icons `v0.2.0`, Moveable `v4.1.0`, Redis `~> 5.3`, and FlatPack `v0.1.341` so the dummy can boot the API.
+
+If you are still on `0.4.0` or older, complete that release's notes first.
+
 ## Upgrading to 0.4.0
 
 `0.4.0` requires Recording Studio `>= 6.3.0`. Update the host dependency to

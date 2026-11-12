@@ -76,6 +76,10 @@ module RecordingStudio
         RecordingStudio::YouTube.configuration.hooks.run(:after_initialize, self)
         RecordingStudio::YouTube::AiTools.register!
       end
+
+      initializer "recording_studio_youtube.api" do
+        config.to_prepare { RecordingStudio::YouTube::Api.register! }
+      end
     end
   end
 end

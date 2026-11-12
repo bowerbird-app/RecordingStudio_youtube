@@ -10,6 +10,7 @@ This Rails app exists to validate RecordingStudio::YouTube in a real host applic
 - Recording Studio default layout, FlatPack assets, and Tailwind source scanning
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 - Dummy-only `/docs/*` pages for gem-specific onboarding
+- Mounted Recording Studio API at `/recording_studio_api` with YouTube read endpoints
 
 ## Quick Start
 
@@ -33,6 +34,7 @@ Then open the app and sign in with:
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/docs/install`, `/docs/config`, `/docs/recordable_types`, `/docs/recordings_tree`, `/docs/gem_views`, `/docs/methods` - dummy-only starter pages
+- `/recording_studio_api` - Recording Studio API. YouTube reads live under `/recording_studio_api/api/v1/youtube/...`
 - `/up` - Rails health check
 
 ## Why This App Exists
