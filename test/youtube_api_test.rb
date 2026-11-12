@@ -407,8 +407,8 @@ class YoutubeApiTest < Minitest::Test
     transport = sequence(json(200, search_body), json(200, search_body))
     with_transport(transport) do
       executor = search[:executor]
-      payload = executor.call({ "query" => "zoo", "type" => "video" }, nil)
-      symbol_payload = executor.call({ query: "zoo", type: :video }, nil)
+      payload = executor.call({ "query" => "zoo", "type" => "video" }, authorized_tool_context)
+      symbol_payload = executor.call({ query: "zoo", type: :video }, authorized_tool_context)
       assert_equal VIDEO_ID, payload["items"].first["video_id"]
       assert_equal payload["items"].first["video_id"], symbol_payload["items"].first["video_id"]
       assert_equal "NEXT", payload["next_page_token"]
@@ -416,6 +416,18 @@ class YoutubeApiTest < Minitest::Test
       assert_equal "search_queries", payload["quota"].first["bucket"]
       refute payload["items"].first.key?("raw")
     end
+  end
+
+  def test_ai_tools_authorize_the_caller_before_spending_the_host_key
+    transport = sequence(json(200, search_body))
+    with_transport(transport) do
+      executor = RecordingStudio::YouTube::AiTools.definitions.first.fetch(:executor)
+      error = assert_raises(RecordingStudio::YouTube::AuthorizationError) do
+        executor.call({ "query" => "zoo" }, nil)
+      end
+      assert_match(/not authorized/, error.message)
+    end
+    assert_empty transport.calls
   end
 
   class FakeTransport
@@ -442,6 +454,15 @@ class YoutubeApiTest < Minitest::Test
 
   def json(status, body)
     [status, body.is_a?(String) ? body : JSON.generate(body), { "content-type" => "application/json" }]
+  end
+
+  def authorized_tool_context
+    grant = Object.new
+    def grant.authorize!(recording:, role:)
+      raise "view role required" unless role == :view && recording
+    end
+
+    Struct.new(:access_grant, :root_recording).new(grant, :root)
   end
 
   def with_transport(transport, api_key: "test-key", retries: 0, instrumentation: false)

@@ -46,7 +46,10 @@ module RecordingStudio
           requires_confirmation: requires_confirmation,
           idempotent: true,
           executor_label: executor_label,
-          executor: ->(arguments, _context) { execute(key.to_s, arguments) }
+          executor: lambda { |arguments, context|
+            authorize_tool!(context)
+            execute(key.to_s, arguments)
+          }
         }
       end
 
@@ -115,10 +118,11 @@ module RecordingStudio
       end
 
       private_class_method :tool, :param, :video, :playlist, :search, :channel, :channel_videos,
-                           :playlist_items, :comments, :options, :argument_key
+                           :playlist_items, :comments, :argument_key
     end
   end
 end
 
+require_relative "ai_tools/authorization"
 require_relative "ai_tools/discovery"
 require_relative "ai_tools/library"
