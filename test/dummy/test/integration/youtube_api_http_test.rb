@@ -2,7 +2,6 @@
 
 require "test_helper"
 require "json"
-require "uri"
 
 class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
   VIDEO_ID = "jNQXAC9IVRw"
@@ -32,56 +31,6 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "youtube.search walks two pages through page_token without overlap" do
-    first_id = "aaaaaaaaaaa"
-    second_id = "bbbbbbbbbbb"
-    transport = SequenceTransport.new([
-      json(200, search_body(video_id: first_id, next_page_token: "PAGE2")),
-      json(200, search_body(video_id: second_id, next_page_token: nil))
-    ])
-    token = issue_token_for(@owner, @root).fetch(:token)
-
-    with_youtube_transport(transport) do
-      get "/recording_studio_api/api/v1/youtube/search",
-          params: { query: "zoo", type: "video" },
-          headers: bearer_headers(token)
-      assert_response :success
-      page_one = JSON.parse(response.body)
-      page_token = page_one.fetch("next_page_token")
-      assert_equal "PAGE2", page_token
-      assert_equal [first_id], page_one.fetch("items").map { |item| item.fetch("video_id") }
-
-      get "/recording_studio_api/api/v1/youtube/search",
-          params: { query: "zoo", type: "video", page_token: page_token },
-          headers: bearer_headers(token)
-      assert_response :success
-      page_two = JSON.parse(response.body)
-      assert_equal [second_id], page_two.fetch("items").map { |item| item.fetch("video_id") }
-      assert_empty page_one.fetch("items").map { |item| item.fetch("video_id") } &
-                   page_two.fetch("items").map { |item| item.fetch("video_id") }
-    end
-
-    first_query = URI.decode_www_form(transport.calls.fetch(0).fetch(:uri).query).to_h
-    second_query = URI.decode_www_form(transport.calls.fetch(1).fetch(:uri).query).to_h
-    refute first_query.key?("pageToken")
-    assert_equal "PAGE2", second_query.fetch("pageToken")
-  end
-
-  test "youtube.search returns 200 for a token with view on the root" do
-    transport = SequenceTransport.new([json(200, search_body)])
-    with_youtube_transport(transport) do
-      get "/recording_studio_api/api/v1/youtube/search",
-          params: { query: "zoo", type: "video" },
-          headers: bearer_headers(issue_token_for(@owner, @root).fetch(:token))
-    end
-
-    assert_response :success
-    payload = JSON.parse(response.body)
-    assert_equal VIDEO_ID, payload.fetch("items").first.fetch("video_id")
-    assert_equal "search_queries", payload.fetch("quota").first.fetch("bucket")
-    assert_equal "/youtube/v3/search", transport.calls.first[:uri].path
-  end
-
   test "youtube.get_video returns 200 for a stubbed video" do
     transport = SequenceTransport.new([json(200, video_body)])
     with_youtube_transport(transport) do
@@ -93,13 +42,13 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
     assert_equal VIDEO_ID, JSON.parse(response.body).fetch("id")
   end
 
-  test "youtube.search returns 401 without a token" do
-    get "/recording_studio_api/api/v1/youtube/search", params: { query: "zoo" }
+  test "youtube.get_video returns 401 without a token" do
+    get "/recording_studio_api/api/v1/youtube/videos/#{VIDEO_ID}"
 
     assert_response :unauthorized
   end
 
-  test "youtube.search returns 403 when the actor cannot view the root" do
+  test "youtube.get_video returns 403 when the actor cannot view the root" do
     issued = issue_token_for(@owner, @root)
     RecordingStudio::Access.where(id: issued.fetch(:access_recording).recordable_id).update_all(role: "")
     refute RecordingStudioAccessible.authorized?(
@@ -108,26 +57,23 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
       role: :view
     )
 
-    get "/recording_studio_api/api/v1/youtube/search",
-        params: { query: "zoo" },
+    get "/recording_studio_api/api/v1/youtube/videos/#{VIDEO_ID}",
         headers: bearer_headers(issued.fetch(:token))
 
     assert_response :forbidden
   end
 
-  test "youtube.search returns 422 for bad params" do
-    get "/recording_studio_api/api/v1/youtube/search",
-        params: { type: "video" },
+  test "youtube.get_video returns 422 for bad params" do
+    get "/recording_studio_api/api/v1/youtube/videos/bad%20id",
         headers: bearer_headers(issue_token_for(@owner, @root).fetch(:token))
 
     assert_response :unprocessable_entity
   end
 
-  test "youtube.search returns forbidden when the search quota is exhausted" do
+  test "youtube.get_video returns forbidden when the quota is exhausted" do
     transport = SequenceTransport.new([json(403, quota_body)])
     with_youtube_transport(transport) do
-      get "/recording_studio_api/api/v1/youtube/search",
-          params: { query: "zoo" },
+      get "/recording_studio_api/api/v1/youtube/videos/#{VIDEO_ID}",
           headers: bearer_headers(issue_token_for(@owner, @root).fetch(:token))
     end
 
@@ -198,24 +144,6 @@ class YoutubeApiHttpTest < ActionDispatch::IntegrationTest
       token: token_result.value.fetch(:access_token),
       access_recording: provision.value.fetch(:access_recording)
     }
-  end
-
-  def search_body(video_id: VIDEO_ID, next_page_token: "NEXT")
-    body = {
-      "pageInfo" => { "totalResults" => 1, "resultsPerPage" => 1 },
-      "items" => [
-        {
-          "id" => { "kind" => "youtube#video", "videoId" => video_id },
-          "snippet" => {
-            "title" => "Me at the zoo",
-            "description" => "snippet",
-            "channelTitle" => "jawed"
-          }
-        }
-      ]
-    }
-    body["nextPageToken"] = next_page_token if next_page_token
-    body
   end
 
   def video_body

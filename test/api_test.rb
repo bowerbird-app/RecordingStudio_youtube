@@ -48,7 +48,8 @@ class ApiTest < Minitest::Test
     assert_includes api, "return unless defined?(::RecordingStudioApi)"
     assert_includes api, "RecordingStudioApi.configuration.each_api"
     refute_includes api, "respond_to?"
-    assert_includes endpoints, "youtube.search"
+    refute_includes endpoints, "youtube.search"
+    assert_includes endpoints, "youtube.get_video"
     assert_includes read, "access_grant.authorize!"
     assert_includes read, "AiTools.execute"
     assert_includes read, 'TOOL = "youtube_get_comment_replies"'
@@ -58,7 +59,14 @@ class ApiTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_youtube/mcp.rb", __dir__))
   end
 
-  def test_search_registration_is_idempotent_per_api
+  def test_registry_does_not_list_search_action
+    names = RecordingStudio::YouTube::Api::Endpoints::DEFINITIONS.map { |entry| entry.fetch(:name) }
+
+    refute_includes names, :"youtube.search"
+    refute defined?(RecordingStudio::YouTube::Api::Search)
+  end
+
+  def test_read_registration_is_idempotent_per_api
     registrations = []
     registered = {}
     RecordingStudioApi.stub(:registered_endpoint, ->(name, api: :public) { registered[[api, name]] }) do
@@ -78,38 +86,38 @@ class ApiTest < Minitest::Test
     end
 
     names = registrations.map { |entry| entry.fetch(:name) }
-    assert_equal 1, names.count(:"youtube.search")
-    search = registrations.find { |entry| entry.fetch(:name) == :"youtube.search" }
-    assert_equal :get, search.fetch(:http_verb)
-    assert_equal "youtube/search", search.fetch(:path)
-    assert_equal RecordingStudio::YouTube::Api::Search, search.fetch(:handler)
-    assert_equal false, search.dig(:input_contract, :reject_unknown)
+    refute_includes names, :"youtube.search"
+    assert_equal 1, names.count(:"youtube.get_video")
+    video = registrations.find { |entry| entry.fetch(:name) == :"youtube.get_video" }
+    assert_equal :get, video.fetch(:http_verb)
+    assert_equal "youtube/videos/:id", video.fetch(:path)
+    assert_equal RecordingStudio::YouTube::Api::Video, video.fetch(:handler)
+    assert_equal false, video.dig(:input_contract, :reject_unknown)
   end
 
-  def test_search_handler_calls_the_existing_search_method
+  def test_video_handler_calls_the_existing_video_method
     captured = nil
-    RecordingStudio::YouTube.stub(:search, lambda { |**options|
-      captured = options
-      page = Object.new
-      def page.to_agent
-        { "items" => [], "quota" => [{ "bucket" => "search_queries" }] }
+    RecordingStudio::YouTube.stub(:video, lambda { |id|
+      captured = id
+      record = Object.new
+      def record.to_agent
+        { "id" => "jNQXAC9IVRw" }
       end
-      page
+      record
     }) do
-      payload = RecordingStudio::YouTube::Api::Search.call(
-        FakeContext.new(params: { query: "zoo", type: "video" })
+      payload = RecordingStudio::YouTube::Api::Video.call(
+        FakeContext.new(params: { id: "jNQXAC9IVRw" })
       )
-      assert_equal "search_queries", payload.fetch("quota").first.fetch("bucket")
+      assert_equal "jNQXAC9IVRw", payload.fetch("id")
     end
 
-    assert_equal "zoo", captured.fetch(:query)
-    assert_equal "video", captured.fetch(:type)
+    assert_equal "jNQXAC9IVRw", captured
   end
 
   def test_handlers_deny_unauthorized_callers
     error = assert_raises(RecordingStudioApi::AuthorizationError) do
-      RecordingStudio::YouTube::Api::Search.call(
-        FakeContext.new(params: { query: "zoo" }, authorized: false)
+      RecordingStudio::YouTube::Api::Video.call(
+        FakeContext.new(params: { id: "jNQXAC9IVRw" }, authorized: false)
       )
     end
 

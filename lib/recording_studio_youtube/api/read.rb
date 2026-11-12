@@ -21,10 +21,6 @@ module RecordingStudio
         private_class_method :stringify
       end
 
-      class Search < Read
-        TOOL = "youtube_search"
-      end
-
       class Video < Read
         TOOL = "youtube_get_video"
       end

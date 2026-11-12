@@ -166,11 +166,10 @@ Each tool sets `read_only` and a cost. Search is `high` and requires confirmatio
 
 ## Recording Studio API
 
-If `RecordingStudioApi` is loaded, the engine registers the same public reads as HTTP endpoints. MCP advertises registered endpoints automatically. This gem adds no MCP tools and has no runtime dependency on the API gem.
+If `RecordingStudioApi` is loaded, the engine registers public reads as HTTP endpoints. Search stays off that surface because it spends the daily YouTube quota. MCP advertises registered endpoints automatically. This gem adds no MCP tools and has no runtime dependency on the API gem.
 
 | Endpoint | Method | Path |
 | --- | --- | --- |
-| `youtube.search` | GET | `youtube/search` |
 | `youtube.get_video` | GET | `youtube/videos/:id` |
 | `youtube.get_videos` | GET | `youtube/videos` |
 | `youtube.get_channel` | GET | `youtube/channels` |
@@ -180,7 +179,7 @@ If `RecordingStudioApi` is loaded, the engine registers the same public reads as
 | `youtube.get_comments` | GET | `youtube/comments` |
 | `youtube.get_comment_replies` | GET | `youtube/comment_replies` |
 
-Handlers authorize with the request `AccessGrant` at `:view` on the root recording, then call the existing `RecordingStudio::YouTube` methods. Search spends the host YouTube Data API quota and cannot skip the 100-call daily `search.list` budget. Writes, captions, `channel(mine:)`, and OAuth diagnostics stay off this surface.
+Handlers authorize with the request `AccessGrant` at `:view` on the root recording, then call the existing `RecordingStudio::YouTube` methods. Writes, captions, search, `channel(mine:)`, and OAuth diagnostics stay off this surface.
 
 `RecordingStudio::YouTube.capabilities` lists reads and the writes that are described but not implemented. A write capability has `implemented` false. Calling a write method on the module fails because the method is not defined.
 
