@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-11-12
+
+### Added
+- Public YouTube reads register on Recording Studio API when that gem is loaded: `youtube.get_video`, `youtube.get_videos`, `youtube.get_channel`, `youtube.get_channel_videos`, `youtube.get_playlist`, `youtube.get_playlist_items`, `youtube.get_comments`, and `youtube.get_comment_replies`. Search stays on the Ruby API and dummy HTML demo. It is not registered as an HTTP endpoint, so MCP does not advertise it. MCP advertises the registered endpoints automatically; this gem adds no MCP tools.
+- Dummy host mounts Recording Studio API `v0.21.3` and the pins it needs to boot (Admin `v2.11.0`, Logs `v0.7.3`, Icons `v0.2.0`, Moveable `v4.1.0`, Redis `~> 5.3`, FlatPack `v0.1.341`).
+
+### Upgrade notes
+- See `UPGRADING.md`. This gem still has no runtime dependency on Recording Studio API. Hosts that mount the API get the YouTube read endpoints after boot. Callers need `:view` on the request root. YouTube search is not on this HTTP surface because it spends the daily YouTube quota.
+
 ## [0.4.0] - 2026-11-05
 
 ### Changed
@@ -171,7 +180,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.7...v0.4.0
 [0.3.7]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.6...v0.3.7
 [0.3.6]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.5...v0.3.6

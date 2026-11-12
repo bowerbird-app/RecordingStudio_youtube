@@ -15,6 +15,7 @@ require "recording_studio_youtube/client"
 require "recording_studio_youtube/gateway"
 require "recording_studio_youtube/session"
 require "recording_studio_youtube/ai_tools"
+require "recording_studio_youtube/api"
 require "recording_studio_youtube/diagnostics"
 require "recording_studio_youtube/engine"
 

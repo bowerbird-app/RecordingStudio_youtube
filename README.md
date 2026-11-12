@@ -164,6 +164,23 @@ If `RecordingStudioAI` is loaded, the engine registers these read-only tools.
 
 Each tool sets `read_only` and a cost. Search is `high` and requires confirmation because of the 100-call daily budget. The other tools are `low` and do not require confirmation. Tool arguments accept string or symbol keys. Tool results use `to_agent` and omit `raw`.
 
+## Recording Studio API
+
+If `RecordingStudioApi` is loaded, the engine registers public reads as HTTP endpoints. Search stays off that surface because it spends the daily YouTube quota. MCP advertises registered endpoints automatically. This gem adds no MCP tools and has no runtime dependency on the API gem.
+
+| Endpoint | Method | Path |
+| --- | --- | --- |
+| `youtube.get_video` | GET | `youtube/videos/:id` |
+| `youtube.get_videos` | GET | `youtube/videos` |
+| `youtube.get_channel` | GET | `youtube/channels` |
+| `youtube.get_channel_videos` | GET | `youtube/channel_videos` |
+| `youtube.get_playlist` | GET | `youtube/playlists/:id` |
+| `youtube.get_playlist_items` | GET | `youtube/playlists/:id/items` |
+| `youtube.get_comments` | GET | `youtube/comments` |
+| `youtube.get_comment_replies` | GET | `youtube/comment_replies` |
+
+Handlers authorize with the request `AccessGrant` at `:view` on the root recording, then call the existing `RecordingStudio::YouTube` methods. Writes, captions, search, `channel(mine:)`, and OAuth diagnostics stay off this surface.
+
 `RecordingStudio::YouTube.capabilities` lists reads and the writes that are described but not implemented. A write capability has `implemented` false. Calling a write method on the module fails because the method is not defined.
 
 ## Call with a connected account
@@ -183,7 +200,7 @@ YouTube API Services policies limit how long a client may store API data. Non-au
 
 ## Develop this gem
 
-The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v6.3.0, Accessible at v0.24.1, Trashable at v0.12.2, Root Switchable at v0.11.5, Metrics at v0.7.2, Cache at v0.6.2, and FlatPack at v0.1.341. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app.
+The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v6.3.0, Accessible at v0.24.1, Trashable at v0.12.2, Root Switchable at v0.11.5, Metrics at v0.7.2, Cache at v0.6.2, FlatPack at v0.1.341, Recording Studio API at v0.21.3, Admin at v2.11.0, Logs at v0.7.3, Icons at v0.2.0, and Moveable at v4.1.0. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app. The dummy mounts the API at `/recording_studio_api`.
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
