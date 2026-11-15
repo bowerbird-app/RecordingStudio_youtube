@@ -14,6 +14,10 @@ RecordingStudio.configure do |config|
   # Actor resolver for events when no actor is explicitly supplied
   config.actor = -> { Current.actor }
 
+  # Core 7 denies writes unless this callback allows them.
+  # A present actor may write, including a new root (root_recording is nil).
+  config.authorize_write = ->(actor:, **) { actor.present? }
+
   # Emit ActiveSupport::Notifications events
   config.event_notifications_enabled = true
 

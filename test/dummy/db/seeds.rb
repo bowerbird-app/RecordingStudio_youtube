@@ -4,7 +4,7 @@
 
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   RecordingStudio::Recording
-    .where(RecordingStudio::Recording.recording_studio_trashable_kept_sql)
+    .kept
     .find_by(
       root_recording: root_recording,
       parent_recording: parent_recording,
@@ -34,10 +34,17 @@ previous_actor = Current.actor
 Current.actor = user
 
 begin
-  # Create the root recording
-  root_recording = RecordingStudio.root_recording_for(workspace)
-  accessible_root_recording = RecordingStudio.root_recording_for(accessible_workspace)
-  private_root_recording = RecordingStudio.root_recording_for(private_workspace)
+  # root_recording_for only finds. Create missing roots explicitly.
+  root_recording = RecordingStudio.create_root_recording!(workspace, actor: user)
+  accessible_root_recording = RecordingStudio.create_root_recording!(accessible_workspace, actor: user)
+  private_root_recording = RecordingStudio.create_root_recording!(private_workspace, actor: user)
+
+  [root_recording, accessible_root_recording, private_root_recording].each do |recording|
+    next if RecordingStudioAccessible.authorized?(actor: user, recording: recording, role: :admin)
+
+    result = RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: user)
+    raise(result.error.presence || "Accessible bootstrap failed") if result.failure?
+  end
 
   folder_recording = find_or_record_child.call(folder, root_recording, root_recording)
 

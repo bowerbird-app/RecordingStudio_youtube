@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-11-15
+
+### Changed
+- Require `recording_studio` `>= 7.0`, `< 8.0`. Development and dummy apps pin core `v7.0.0`.
+- Dummy and development pins move to the core 7 tags already in this app: Accessible `v0.44.0`, Admin `v2.16.0`, API `v0.24.0`, Trashable `v0.17.0`, Moveable `v5.0.0`, Metrics `v0.9.0`, Logs `v0.8.0`, Icons `v0.2.1`, Cache `v0.6.3`, and FlatPack `v0.1.376`. Root Switchable moves from `v0.11.5` to `v0.16.0` because `v0.11.5` requires core `< 7`.
+- Dummy roots are created with `RecordingStudio.create_root_recording!(recordable, actor:)`. `root_recording_for` only finds an existing root.
+- Dummy `config.authorize_write` allows a write when an actor is present.
+- Dummy copies core migration `20261114090000_add_root_recording_id_to_recording_studio_events`.
+- Dummy seed lookups use `Recording.kept`.
+- Dummy pins Puma `8.1.0` and `msgpack` `>= 1.8.7`.
+- Dummy root switcher lists roots the actor can view. Seeds grant the seeded user owner access on those roots. Root Switchable 0.16 rejects the switch page without that grant.
+
+### Upgrade notes
+- See `UPGRADING.md`. Update the host dependency to `recording_studio_youtube`, `~> 0.6.0`.
+
 ## [0.5.0] - 2026-11-12
 
 ### Added
@@ -180,7 +195,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.7...v0.4.0
 [0.3.7]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.6...v0.3.7

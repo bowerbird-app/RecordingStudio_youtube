@@ -200,7 +200,7 @@ YouTube API Services policies limit how long a client may store API data. Non-au
 
 ## Develop this gem
 
-The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v6.3.0, Accessible at v0.24.1, Trashable at v0.12.2, Root Switchable at v0.11.5, Metrics at v0.7.2, Cache at v0.6.2, FlatPack at v0.1.341, Recording Studio API at v0.21.3, Admin at v2.11.0, Logs at v0.7.3, Icons at v0.2.0, and Moveable at v4.1.0. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app. The dummy mounts the API at `/recording_studio_api`.
+The dummy app under `test/dummy` is the host used by the engine tests. It pins RecordingStudio at v7.0.0, Accessible at v0.44.0, Trashable at v0.17.0, Root Switchable at v0.16.0, Metrics at v0.9.0, Cache at v0.6.3, FlatPack at v0.1.376, Recording Studio API at v0.24.0, Admin at v2.16.0, Logs at v0.8.0, Icons at v0.2.1, and Moveable at v5.0.0. Sign in with `admin@admin.com` and password `Password` after `bin/rails db:setup` in that app. The dummy mounts the API at `/recording_studio_api`.
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
