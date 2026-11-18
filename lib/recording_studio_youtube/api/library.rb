@@ -27,6 +27,7 @@ module RecordingStudio
           },
           {
             name: :"youtube.get_playlist", http_verb: :get, path: "youtube/playlists/:id", handler: Playlist,
+            scope_id: false,
             openapi: Endpoints.openapi(
               "Read a YouTube playlist",
               "Reads public metadata for one playlist id.",
@@ -36,7 +37,7 @@ module RecordingStudio
           },
           {
             name: :"youtube.get_playlist_items", http_verb: :get, path: "youtube/playlists/:id/items",
-            handler: PlaylistItems,
+            handler: PlaylistItems, scope_id: false,
             openapi: Endpoints.openapi(
               "Read playlist items",
               "Reads one page of videos in a public playlist.",

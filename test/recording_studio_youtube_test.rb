@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioYouTubeTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.6.1", ::RecordingStudio::YouTube::VERSION
+    assert_equal "0.7.0", ::RecordingStudio::YouTube::VERSION
   end
 
   def test_engine_exists
@@ -237,6 +237,7 @@ class RecordingStudioYouTubeTest < Minitest::Test
 
     assert_includes readme, "RecordingStudio"
     assert_includes readme, "v7.7.1"
+    assert_includes readme, "recording_studio_api` `>= 0.26"
     assert_includes readme, "v0.1.378"
     assert_includes readme, "v0.54.0"
     refute_includes readme, "v0.1.133"

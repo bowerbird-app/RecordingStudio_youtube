@@ -166,7 +166,7 @@ Each tool sets `read_only` and a cost. Search is `high` and requires confirmatio
 
 ## Recording Studio API
 
-If `RecordingStudioApi` is loaded, the engine registers public reads as HTTP endpoints. Search stays off that surface because it spends the daily YouTube quota. MCP advertises registered endpoints automatically. This gem adds no MCP tools and has no runtime dependency on the API gem.
+If `RecordingStudioApi` is loaded, the engine registers public reads as HTTP endpoints. Search stays off that surface because it spends the daily YouTube quota. MCP advertises registered endpoints automatically. This gem adds no MCP tools and has no runtime dependency on the API gem. The API integration needs `recording_studio_api` `>= 0.26`.
 
 | Endpoint | Method | Path |
 | --- | --- | --- |
