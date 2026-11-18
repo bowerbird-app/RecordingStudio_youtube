@@ -4,7 +4,7 @@
 
 `0.6.1` keeps the `recording_studio` requirement at `>= 7.0`, `< 8.0`. Update the host dependency to `recording_studio_youtube`, `~> 0.6.1`.
 
-1. No migrations in this gem. Do not copy Recording Studio 7.4, 7.5, or 7.7 root-index migrations into a host that already boots without them.
+1. No migrations in this gem. Hosts moving to Recording Studio 7.7 must run the Recording Studio 7.5 and 7.7 root-index migrations. Hosts on API 1.4 or 1.7 must run those API migrations too. Only this repo's dummy app leaves the Recording Studio 7.4, 7.5, and 7.7 root-index migrations out. The dummy does copy API `20261117000024_add_owner_to_recording_studio_api_api_clients`, because API 1.15 `ProvisionApiClient` writes `owner`.
 2. Hosts that mount Recording Studio API 1.12 or newer need `config/recording_studio_api.yml`. A minimal file with `shared: {}` is enough for this dummy.
 3. The dummy host pins core `v7.7.1`, Accessible `v0.54.0`, Admin `v2.19.0`, API `v1.15.0`, Trashable `v1.2.0`, Moveable `v6.0.1`, Metrics `v0.9.1`, Logs `v0.8.1`, Cache `v0.7.0`, Icons `v0.4.1`, Root Switchable `v0.16.0`, and FlatPack `v0.1.378`.
 
