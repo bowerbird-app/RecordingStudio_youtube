@@ -11,20 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `youtube.get_video`, `youtube.get_playlist`, and `youtube.get_playlist_items` register with `scope_id: false`. The `:id` path token is a YouTube id.
-
-### Upgrade notes
-- See `UPGRADING.md`. Update the host dependency to `recording_studio_youtube`, `~> 0.7.0`. The API integration needs `recording_studio_api` `>= 0.26`.
-- Hosts moving to Recording Studio 7.7 must run the 7.4, 7.5, and 7.7 migrations. Only the dummy app leaves those out.
-
-## [0.6.1] - 2026-11-18
-
-### Changed
 - Development and dummy pins move to Recording Studio `v7.7.1`, FlatPack `v0.1.378`, Accessible `v0.54.0`, Admin `v2.19.0`, API `v1.15.0`, Icons `v0.4.1`, Logs `v0.8.1`, Metrics `v0.9.1`, Moveable `v6.0.1`, and Trashable `v1.2.0`. The dummy also pins Cache `v0.7.0`. Root Switchable stays `v0.16.0`.
 - Dummy `config/recording_studio_api.yml` is a minimal file so API 1.15 can boot.
 - Dummy copies API migration `20261117000024_add_owner_to_recording_studio_api_api_clients` so `ProvisionApiClient` can write `owner`. Hosts moving to Recording Studio 7.7 must run the 7.4, 7.5, and 7.7 migrations. Only this dummy leaves those out.
 
 ### Upgrade notes
-- See `UPGRADING.md`. Update the host dependency to `recording_studio_youtube`, `~> 0.6.1`.
+- See `UPGRADING.md`. Update the host dependency to `recording_studio_youtube`, `~> 0.7.0`. The API integration needs `recording_studio_api` `>= 0.26`.
+- Hosts moving to Recording Studio 7.7 must run the 7.4, 7.5, and 7.7 migrations. Only the dummy app leaves those out.
 
 ## [0.6.0] - 2026-11-15
 
@@ -215,8 +208,7 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Basic test suite with Minitest
 
 [Unreleased]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.7.0...HEAD
-[0.7.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.6.1...v0.7.0
-[0.6.1]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.6.0...v0.6.1
+[0.7.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_youtube/compare/v0.3.7...v0.4.0
