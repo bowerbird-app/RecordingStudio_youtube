@@ -92,7 +92,31 @@ class ApiTest < Minitest::Test
     assert_equal :get, video.fetch(:http_verb)
     assert_equal "youtube/videos/:id", video.fetch(:path)
     assert_equal RecordingStudio::YouTube::Api::Video, video.fetch(:handler)
+    assert_equal false, video.fetch(:scope_id)
     assert_equal false, video.dig(:input_contract, :reject_unknown)
+
+    %i[youtube.get_playlist youtube.get_playlist_items].each do |name|
+      entry = registrations.find { |item| item.fetch(:name) == name }
+      assert_equal false, entry.fetch(:scope_id), name
+    end
+  end
+
+  def test_youtube_path_ids_are_not_recording_scope
+    youtube_ids = %i[youtube.get_video youtube.get_playlist youtube.get_playlist_items]
+    definitions = RecordingStudio::YouTube::Api::Endpoints::DEFINITIONS
+
+    youtube_ids.each do |name|
+      entry = definitions.find { |item| item.fetch(:name) == name }
+      assert_equal false, entry.fetch(:scope_id), name
+      assert_includes entry.fetch(:path).split("/"), ":id"
+    end
+
+    definitions.each do |entry|
+      next if youtube_ids.include?(entry.fetch(:name))
+
+      refute entry.key?(:scope_id), entry.fetch(:name).to_s
+      refute_includes entry.fetch(:path).split("/"), ":id"
+    end
   end
 
   def test_video_handler_calls_the_existing_video_method

@@ -7,6 +7,7 @@ module RecordingStudio
         DEFINITIONS = [
           {
             name: :"youtube.get_video", http_verb: :get, path: "youtube/videos/:id", handler: Video,
+            scope_id: false,
             openapi: Endpoints.openapi(
               "Read a YouTube video",
               "Reads public metadata for one video id.",

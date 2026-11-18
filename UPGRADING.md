@@ -1,5 +1,25 @@
 # Upgrading RecordingStudio YouTube
 
+## Upgrading to 0.7.0
+
+`0.7.0` keeps the `recording_studio` requirement at `>= 7.0`, `< 8.0`. Update the host dependency to `recording_studio_youtube`, `~> 0.7.0`.
+
+1. No migrations in this gem. Hosts moving to Recording Studio 7.7 must run the Recording Studio 7.4, 7.5, and 7.7 migrations. Only this repo's dummy app leaves those migrations out.
+2. The API integration needs `recording_studio_api` `>= 0.26`. `youtube.get_video`, `youtube.get_playlist`, and `youtube.get_playlist_items` pass `scope_id: false` because `:id` is a YouTube id.
+3. Complete the 0.6.1 notes if you have not already. Those dependency pins ship in this release.
+
+If you are still on `0.6.1` or older, complete that release's notes first.
+
+## Upgrading to 0.6.1
+
+`0.6.1` keeps the `recording_studio` requirement at `>= 7.0`, `< 8.0`. Update the host dependency to `recording_studio_youtube`, `~> 0.6.1`.
+
+1. No migrations in this gem. Hosts moving to Recording Studio 7.7 must run the Recording Studio 7.4, 7.5, and 7.7 migrations. Hosts on API 1.4 or 1.7 must run those API migrations too. Only this repo's dummy app leaves the Recording Studio 7.4, 7.5, and 7.7 migrations out. The dummy does copy API `20261117000024_add_owner_to_recording_studio_api_api_clients`, because API 1.15 `ProvisionApiClient` writes `owner`.
+2. Hosts that mount Recording Studio API 1.12 or newer need `config/recording_studio_api.yml`. A minimal file with `shared: {}` is enough for this dummy.
+3. The dummy host pins core `v7.7.1`, Accessible `v0.54.0`, Admin `v2.19.0`, API `v1.15.0`, Trashable `v1.2.0`, Moveable `v6.0.1`, Metrics `v0.9.1`, Logs `v0.8.1`, Cache `v0.7.0`, Icons `v0.4.1`, Root Switchable `v0.16.0`, and FlatPack `v0.1.378`.
+
+If you are still on `0.6.0` or older, complete that release's notes first.
+
 ## Upgrading to 0.6.0
 
 `0.6.0` requires `recording_studio` `>= 7.0`, `< 8.0`. Update the host dependency to `recording_studio_youtube`, `~> 0.6.0`.
